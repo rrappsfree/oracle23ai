@@ -6,7 +6,7 @@ layout: base.njk
 
   <!-- Breadcrumb -->
   <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/">Home</a>
+    <a href="{{ '/' | url }}">Home</a>
     <span>›</span>
     {% if category == "support" %}
       <a href="{{ '/support/' | url }}">Support</a>
@@ -50,7 +50,7 @@ layout: base.njk
         <div class="related-grid">
           {% for slug in related %}
             {% set relatedPost =  collections.support | selectattr("fileSlug", slug) %}
-            <a href="/support/{{ slug }}/" class="related-card">
+            <a href="{{ '/support/' + slug + '/' | url }}" class="related-card">
               <div class="related-card-title">{{ slug | replace("-", " ") | title }}</div>
               <div class="related-card-arrow">→</div>
             </a>

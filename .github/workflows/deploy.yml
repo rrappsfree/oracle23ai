@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Build Eleventy
-        run: npm run build
+        run: npm run build -- --pathprefix
 
       - name: Build Pagefind search index
         run: npx pagefind --source _site

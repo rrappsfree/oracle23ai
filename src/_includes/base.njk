@@ -1,3 +1,5 @@
+{% set pfx = pathPrefix %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,27 +8,29 @@
 <title>{% if title %}{{ title }} — {% endif %}Oracle 23ai Help Center</title>
 <meta name="description" content="{{ description or 'Technical support, guides, and blog for Oracle Database 23ai.' }}">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css">
-<link rel="stylesheet" href="/assets/css/articles.css">
+<link rel="stylesheet" href="{{ pfx }}assets/css/main.css">
+<link rel="stylesheet" href="{{ pfx }}assets/css/articles.css">
 
-<!-- Pagefind search UI (built after `npm run build:search`) -->
-<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+<!-- Pagefind search UI -->
+<link href="{{ pfx }}pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
 </head>
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">
+  <a href="{{ pfx }}" class="nav-logo">
     <div class="nav-logo-icon">O</div>
     <div class="nav-logo-text">Oracle <span>23ai</span></div>
   </a>
   <ul class="nav-links">
-    <li><a href="{{ '/support/' | url }}">Support</a></li>
-    <li><a href="{{ '/blog/' | url }}">Blog</a></li>
-    <li><a href="{{ '/install/' | url }}">Install</a></li>
-    <li><a href="{{ '/version/' | url }}">Versions</a></li>
+    <li><a href="{{ pfx }}support/">Support</a></li>
+    <li><a href="{{ pfx }}blog/">Blog</a></li>
+    <li><a href="{{ pfx }}install/">Install</a></li>
+    <li><a href="{{ pfx }}#versions">Versions</a></li>
     <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
   </ul>
 </nav>
+
+<!-- Rest of the template with all links using {{ pfx }} -->
 
 <!-- Search overlay -->
 <div id="search-overlay" class="search-overlay hidden">
@@ -52,19 +56,19 @@
     <div class="footer-col">
       <div class="footer-col-title">INSTALL</div>
       <ul>
-        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
-        <li><a href="/install/">Error Reference</a></li>
-        <li><a href="/install/">AI Features</a></li>
-        <li><a href="/install/">Performance</a></li>
+        <li><a href="{{ '/install/installing-oracle-23ai-free/' | url }}">Installation Guides</a></li>
+        <li><a href="{{ '/install/' | url }}">Error Reference</a></li>
+        <li><a href="{{ '/install/' | url }}">AI Features</a></li>
+        <li><a href="{{ '/install/' | url }}">Performance</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Blog</div>
       <ul>
-        <li><a href="/blog/">All Posts</a></li>
-        <li><a href="/blog/">Deep Dives</a></li>
-        <li><a href="/blog/">Tutorials</a></li>
-        <li><a href="/blog/">Migration</a></li>
+        <li><a href="{{ '/blog/' | url }}">All Posts</a></li>
+        <li><a href="{{ '/blog/' | url }}">Deep Dives</a></li>
+        <li><a href="{{ '/blog/' | url }}">Tutorials</a></li>
+        <li><a href="{{ '/blog/' | url }}">Migration</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -82,7 +86,7 @@
   </div>
 </footer>
 
-<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script src="{{ '/pagefind/pagefind-ui.js' | url }}" onerror="this.remove()"></script>
 <script>
   // Pagefind search widget
   if (window.PagefindUI) {
