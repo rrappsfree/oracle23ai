@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Differences Between Oracle 19c and 23ai — Oracle 23ai Help Center</title>
+<meta name="description" content="A detailed side-by-side comparison of Oracle Database 19c and 23ai across AI capabilities, SQL and PL/SQL, security, performance, architecture, developer experience, and support lifecycle — to help you decide when and whether to upgrade.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>Key Differences Between Oracle 19c and 23ai</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Deep Dive</span>
+        </div>
+        <h1 class="article-title">Key Differences Between Oracle 19c and 23ai</h1>
+        
+          <p class="article-description">A detailed side-by-side comparison of Oracle Database 19c and 23ai across AI capabilities, SQL and PL/SQL, security, performance, architecture, developer experience, and support lifecycle — to help you decide when and whether to upgrade.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>March 21, 2025</span>
+          <span>14 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>Two Distinct Epochs</h2>
+<p>Oracle Database 19c and Oracle Database 23ai are both long-term support (LTS) releases, but they represent two fundamentally different philosophies about what a database should be.</p>
+<p>Oracle 19c stands as the apex of traditional database optimization — a mature, stable, and highly refined platform focused on maximizing the performance, security, and availability of existing enterprise workloads. It is the terminal release of the 12c family, embodying a decade of enhancements in automation, in-memory processing, and security controls. In stark contrast, Oracle Database 23ai marks a strategic and technological inflection point.</p>
+<p>Understanding the differences between them is the essential starting point for any upgrade decision.</p>
+<hr>
+<h2>At a Glance</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Release type</td>
+<td>Long-Term Support (LTS)</td>
+<td>Long-Term Support (LTS)</td>
+</tr>
+<tr>
+<td>Release year</td>
+<td>2019</td>
+<td>2024 (production)</td>
+</tr>
+<tr>
+<td>Premier Support</td>
+<td>Through April 2027</td>
+<td>Through December 31, 2031</td>
+</tr>
+<tr>
+<td>Extended Support</td>
+<td>Through April 2030</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Non-CDB or CDB/PDB</td>
+<td>CDB/PDB only (non-CDB removed)</td>
+</tr>
+<tr>
+<td>AI features</td>
+<td>None native</td>
+<td>AI Vector Search, DBMS_VECTOR</td>
+</tr>
+<tr>
+<td>New features</td>
+<td>Mature, stable</td>
+<td>300+ new features</td>
+</tr>
+<tr>
+<td>Free edition</td>
+<td>No</td>
+<td>Yes — Oracle Database 23ai Free</td>
+</tr>
+<tr>
+<td>Direct upgrade to</td>
+<td>21c or 23ai</td>
+<td>N/A (current LTS)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Architecture: The Biggest Breaking Change</h2>
+<p>Oracle Database 23ai no longer supports the classic non-CDB architecture, requiring adoption of the CDB/PDB model introduced in 12.2. This change alone may well impact your ability to easily upgrade.</p>
+<p>In Oracle 19c you could still create and run non-CDB databases — the classic architecture that dominated Oracle from version 1 through 11g. In 23ai that option is gone entirely.</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Non-CDB support</td>
+<td>Yes (deprecated but functional)</td>
+<td>Removed entirely</td>
+</tr>
+<tr>
+<td>CDB/PDB support</td>
+<td>Yes</td>
+<td>Yes (only option)</td>
+</tr>
+<tr>
+<td>Max PDBs (Free/SE)</td>
+<td>3 user PDBs</td>
+<td>Unlimited in Free edition</td>
+</tr>
+<tr>
+<td>Non-CDB to PDB migration</td>
+<td>Optional</td>
+<td>Required before upgrading</td>
+</tr>
+</tbody>
+</table>
+<p>If you are running 19c non-CDB databases, converting to PDB is a mandatory prerequisite before upgrading to 23ai. The AutoUpgrade tool can handle this conversion automatically as part of the upgrade process.</p>
+<hr>
+<h2>AI Capabilities</h2>
+<p>This is the most dramatic difference between the two releases — Oracle 23ai is the first release that heavily focuses on features for AI. That is also why Oracle decided to rename it from Database 23c to the more technically catchy Database 23ai.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VECTOR data type</td>
+<td>Not available</td>
+<td>Native — <code>VECTOR(dims, format)</code></td>
+</tr>
+<tr>
+<td>Vector indexes</td>
+<td>Not available</td>
+<td>HNSW (in-memory) and IVF (disk)</td>
+</tr>
+<tr>
+<td>Similarity search</td>
+<td>Not available</td>
+<td><code>VECTOR_DISTANCE()</code> with 5 metrics</td>
+</tr>
+<tr>
+<td>Embedding generation</td>
+<td>External only</td>
+<td><code>DBMS_VECTOR.UTL_TO_EMBEDDING</code></td>
+</tr>
+<tr>
+<td>LLM integration</td>
+<td>External only</td>
+<td><code>DBMS_VECTOR_CHAIN</code> (OCI, OpenAI, Cohere)</td>
+</tr>
+<tr>
+<td>RAG pipelines</td>
+<td>Application-tier only</td>
+<td>Native SQL — no middleware required</td>
+</tr>
+<tr>
+<td>Semantic search</td>
+<td>Not available</td>
+<td><code>FETCH APPROXIMATE</code> with ANN indexes</td>
+</tr>
+</tbody>
+</table>
+<p>In Oracle 19c, building a semantic search or RAG application meant maintaining a separate vector database (Pinecone, pgvector, Chroma) alongside your Oracle instance. In 23ai, the vector store is Oracle itself — same ACID guarantees, same SQL interface, no sync overhead.</p>
+<pre><code class="language-sql">-- Oracle 23ai: semantic search in pure SQL
+SELECT content, VECTOR_DISTANCE(embedding, :query_vec, COSINE) AS score
+FROM documents
+ORDER BY score
+FETCH APPROXIMATE FIRST 10 ROWS ONLY;
+</code></pre>
+<hr>
+<h2>SQL and PL/SQL Developer Experience</h2>
+<p>Oracle 23ai removes a significant amount of boilerplate that 19c developers had to write daily.</p>
+<h3>IF NOT EXISTS / IF EXISTS</h3>
+<pre><code class="language-sql">-- Oracle 19c: error if table already exists
+CREATE TABLE employees (...);
+-- ORA-00955: name is already used by an existing object
+
+-- Oracle 23ai: no error, no exception block needed
+CREATE TABLE IF NOT EXISTS employees (...);
+DROP TABLE IF EXISTS employees;
+DROP INDEX IF EXISTS emp_idx;
+</code></pre>
+<h3>SELECT Without FROM DUAL</h3>
+<pre><code class="language-sql">-- Oracle 19c
+SELECT SYSDATE FROM dual;
+SELECT 1 + 1 FROM dual;
+
+-- Oracle 23ai
+SELECT SYSDATE;
+SELECT 1 + 1;
+</code></pre>
+<h3>GROUP BY Column Aliases</h3>
+<pre><code class="language-sql">-- Oracle 19c: must repeat the expression
+SELECT TRUNC(hire_date, 'MM') AS hire_month, COUNT(*)
+FROM employees
+GROUP BY TRUNC(hire_date, 'MM');
+
+-- Oracle 23ai: use the alias directly
+SELECT TRUNC(hire_date, 'MM') AS hire_month, COUNT(*)
+FROM employees
+GROUP BY hire_month;
+</code></pre>
+<h3>Boolean Data Type</h3>
+<pre><code class="language-sql">-- Oracle 19c: no native BOOLEAN in SQL (PL/SQL only)
+-- Workaround: NUMBER(1) or VARCHAR2(1) with 'Y'/'N'
+CREATE TABLE flags (is_active NUMBER(1) CHECK (is_active IN (0,1)));
+
+-- Oracle 23ai: native BOOLEAN in SQL
+CREATE TABLE flags (is_active BOOLEAN);
+INSERT INTO flags VALUES (TRUE);
+SELECT * FROM flags WHERE is_active = TRUE;
+</code></pre>
+<h3>UPDATE and DELETE with JOIN</h3>
+<pre><code class="language-sql">-- Oracle 19c: correlated subquery required
+UPDATE employees e
+SET salary = salary * 1.10
+WHERE dept_id IN (
+  SELECT dept_id FROM departments WHERE dept_name = 'Engineering'
+);
+
+-- Oracle 23ai: JOIN syntax directly
+UPDATE employees e
+  JOIN departments d ON e.dept_id = d.dept_id
+SET e.salary = e.salary * 1.10
+WHERE d.dept_name = 'Engineering';
+</code></pre>
+<h3>Additional SQL Enhancements in 23ai</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>19c</th>
+<th>23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IF [NOT] EXISTS</code> DDL</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>SELECT</code> without <code>FROM</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>BOOLEAN</code> SQL data type</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GROUP BY</code> aliases</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>UPDATE</code>/<code>DELETE</code> with JOIN</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SQL Domains</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Annotations on objects</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>INTERVAL</code> aggregation (SUM/AVG)</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>CEIL</code>/<code>FLOOR</code> on DATE/TIMESTAMP</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CASE expression improvements</td>
+<td>Limited</td>
+<td>Enhanced</td>
+</tr>
+<tr>
+<td><code>DEFAULT ON NULL FOR INSERT AND UPDATE</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Security</h2>
+<p>Oracle 23ai shifts the security posture from reactive detection to proactive prevention by embedding security deeper into the database kernel.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL Firewall</td>
+<td>Not available</td>
+<td>Built into kernel — allow-list enforcement</td>
+</tr>
+<tr>
+<td>Schema-level privileges</td>
+<td>Not available</td>
+<td><code>GRANT SELECT ANY TABLE ON SCHEMA hr</code></td>
+</tr>
+<tr>
+<td>Immutable Tables</td>
+<td>Backported from 21c</td>
+<td>Enhanced with compliance controls</td>
+</tr>
+<tr>
+<td>Blockchain Tables</td>
+<td>Backported from 21c</td>
+<td>Row-level signature verification enhanced</td>
+</tr>
+<tr>
+<td><code>GRANT ANY TABLE</code> scoping</td>
+<td>Database-wide only</td>
+<td>Can be scoped to a single schema</td>
+</tr>
+<tr>
+<td><code>DBA_SCHEMA_PRIVS</code> view</td>
+<td>Not available</td>
+<td>New — tracks schema privilege grants</td>
+</tr>
+</tbody>
+</table>
+<p>The SQL Firewall is arguably the most impactful security addition. It operates inside the database kernel, inspects every incoming SQL statement before execution, and blocks anything not on the pre-approved allow-list — regardless of what happens at the application tier.</p>
+<pre><code class="language-sql">-- 19c: no built-in SQL inspection
+-- Application must implement its own input sanitization
+
+-- 23ai: SQL Firewall inside the database
+EXEC DBMS_SQL_FIREWALL.ENABLE;
+EXEC DBMS_SQL_FIREWALL.START_CAPTURE(username =&gt; 'APP_USER');
+-- ... run normal application workload ...
+EXEC DBMS_SQL_FIREWALL.STOP_CAPTURE(username =&gt; 'APP_USER');
+EXEC DBMS_SQL_FIREWALL.GENERATE_ALLOW_LIST(username =&gt; 'APP_USER');
+EXEC DBMS_SQL_FIREWALL.ENABLE_ALLOW_LIST(
+  username =&gt; 'APP_USER',
+  enforce  =&gt; DBMS_SQL_FIREWALL.ENFORCE_SQL);
+</code></pre>
+<hr>
+<h2>Multi-Model Data Support</h2>
+<p>Oracle 19c introduced JSON support and had basic graph capabilities. Oracle 23ai expands both significantly and adds first-class vector support.</p>
+<table>
+<thead>
+<tr>
+<th>Data model</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Relational</td>
+<td>Full</td>
+<td>Full</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>Supported — <code>IS JSON</code> constraint, dot notation</td>
+<td>Enhanced — JSON Duality Views, JSON Collections, MongoDB API</td>
+</tr>
+<tr>
+<td>Property Graph</td>
+<td>PGQL (proprietary)</td>
+<td>SQL/PGQ (ANSI standard)</td>
+</tr>
+<tr>
+<td>Vector</td>
+<td>Not available</td>
+<td>Native VECTOR type with ANN indexes</td>
+</tr>
+<tr>
+<td>Spatial</td>
+<td>Supported</td>
+<td>Enhanced</td>
+</tr>
+<tr>
+<td>XML</td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Document store</td>
+<td>SODA (limited)</td>
+<td>MongoDB-compatible API</td>
+</tr>
+</tbody>
+</table>
+<p>JSON Relational Duality Views are the headline multi-model feature — they let you expose relational tables as updatable JSON documents without any data duplication.</p>
+<pre><code class="language-sql">-- 23ai: expose relational data as JSON — reads and writes both work
+CREATE OR REPLACE JSON RELATIONAL DUALITY VIEW dept_dv AS
+  departments @INSERT @UPDATE @DELETE
+  { deptId: dept_id, deptName: dept_name,
+    employees: employees @INSERT @UPDATE @DELETE
+    [{ empId: emp_id, empName: emp_name }] };
+</code></pre>
+<hr>
+<h2>Performance</h2>
+<p>Both releases are highly capable for enterprise workloads. 23ai builds on 19c's foundation with several new capabilities.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Automatic Indexing</td>
+<td>Introduced</td>
+<td>Enhanced — improved ML models</td>
+</tr>
+<tr>
+<td>In-Memory Column Store</td>
+<td>Supported</td>
+<td>Enhanced</td>
+</tr>
+<tr>
+<td>True Cache</td>
+<td>Not available</td>
+<td>New — read-only in-memory cache instance</td>
+</tr>
+<tr>
+<td>Lock-Free Reservations</td>
+<td>Not available</td>
+<td>New — eliminates hot row contention</td>
+</tr>
+<tr>
+<td>Priority Transactions</td>
+<td>Not available</td>
+<td>New — high-priority workload preemption</td>
+</tr>
+<tr>
+<td>Vector index search</td>
+<td>Not available</td>
+<td>HNSW (sub-millisecond at scale)</td>
+</tr>
+<tr>
+<td>Partition pruning for graphs</td>
+<td>Not available</td>
+<td>IVF local indexes on partitioned tables</td>
+</tr>
+</tbody>
+</table>
+<p>True Cache is worth highlighting — it is a separate lightweight Oracle instance that serves read queries from memory, offloading the primary database without Oracle RAC licensing.</p>
+<hr>
+<h2>DBA and Operations</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DB_DEVELOPER_ROLE</code></td>
+<td>Not available</td>
+<td>New predefined role for developers</td>
+</tr>
+<tr>
+<td>AutoUpgrade tool</td>
+<td>Available</td>
+<td>Enhanced — handles non-CDB to PDB conversion</td>
+</tr>
+<tr>
+<td>SQL Analysis Report</td>
+<td>Not available</td>
+<td>New — detects anti-patterns at dev time</td>
+</tr>
+<tr>
+<td>RMAN immutable backups</td>
+<td>Not available</td>
+<td>New — on OCI Object Storage</td>
+</tr>
+<tr>
+<td>Data Pump monitoring views</td>
+<td>Limited</td>
+<td>3 new <code>V$DATAPUMP_*</code> views</td>
+</tr>
+<tr>
+<td>Bigfile tablespace default</td>
+<td>Smallfile default</td>
+<td>Bigfile is now the default</td>
+</tr>
+<tr>
+<td><code>DBMS_SPACE.SHRINK_TABLESPACE</code></td>
+<td>Not available</td>
+<td>New — reclaim bigfile space</td>
+</tr>
+<tr>
+<td>TNS error messages</td>
+<td>Cryptic (ORA-12541)</td>
+<td>Detailed cause-and-action guidance</td>
+</tr>
+<tr>
+<td><code>DBMS_HCHECK</code></td>
+<td>Not available</td>
+<td>New — data dictionary health checks</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>DB_DEVELOPER_ROLE</code> is a significant quality-of-life improvement. In 19c environments it was common to grant <code>DBA</code> to developers just to avoid repeated privilege requests. 23ai provides a curated role with everything a developer needs and nothing they don't.</p>
+<hr>
+<h2>Free Edition Comparison</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai Free</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free edition available</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CPU threads</td>
+<td>N/A</td>
+<td>2</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>N/A</td>
+<td>2 GB</td>
+</tr>
+<tr>
+<td>User data</td>
+<td>N/A</td>
+<td>12 GB</td>
+</tr>
+<tr>
+<td>AI Vector Search</td>
+<td>N/A</td>
+<td>Included</td>
+</tr>
+<tr>
+<td>JSON Duality Views</td>
+<td>N/A</td>
+<td>Included</td>
+</tr>
+<tr>
+<td>SQL Firewall</td>
+<td>N/A</td>
+<td>Included</td>
+</tr>
+<tr>
+<td>License required</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Every 23ai feature — including AI Vector Search — is available in the free edition. This makes 23ai accessible to any developer or DBA who wants to evaluate the new capabilities without any licensing cost.</p>
+<hr>
+<h2>Support Lifecycle</h2>
+<p>While 19c's Premier Support ends in 2029 (and Extended Support in 2032), upgrading now guarantees longer coverage, access to new AI features, and continued security updates.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Oracle 19c</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Premier Support end</td>
+<td>April 2027</td>
+<td>December 31, 2031</td>
+</tr>
+<tr>
+<td>Extended Support end</td>
+<td>April 2030</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Remaining Premier years (from 2025)</td>
+<td>~2 years</td>
+<td>~6 years</td>
+</tr>
+</tbody>
+</table>
+<p>With only about two years of Premier Support remaining for 19c, planning your upgrade path to 23ai now is prudent — especially given that transitioning to Oracle Database 23ai could potentially take two to three years, pending the project is successful, especially if navigating a complex multi-upgrade path.</p>
+<hr>
+<h2>Should You Upgrade?</h2>
+<p>The decision depends on your workload and timeline — but the direction is clear.</p>
+<p><strong>Upgrade to 23ai if:</strong></p>
+<ul>
+<li>You are building or planning AI-driven applications (semantic search, RAG, recommendations)</li>
+<li>Your team wants the SQL developer improvements (IF NOT EXISTS, BOOLEAN, SQL Domains)</li>
+<li>You need SQL Firewall for compliance (PCI-DSS, SOC 2, financial services)</li>
+<li>Your 19c Premier Support window is closing</li>
+<li>You want the longest possible support runway (6+ years of Premier Support)</li>
+</ul>
+<p><strong>Stay on 19c for now if:</strong></p>
+<ul>
+<li>Your workload is stable and has no immediate AI requirements</li>
+<li>You are mid-way through a complex application re-certification cycle</li>
+<li>You are running non-CDB and haven't planned the PDB migration yet</li>
+<li>Achieving a stable release typically takes time, often at least two years — the version you've archived may not be stable enough for critical production workloads yet</li>
+</ul>
+<p><strong>Either way — start planning now.</strong> The non-CDB to PDB migration is the step that catches most teams off-guard. Even if you plan to stay on 19c for another year, completing that architectural migration now removes the biggest blocker when you are ready to move to 23ai.</p>
+<hr>
+<h2>Migration Quick Reference</h2>
+<pre><code class="language-bash"># Check your upgrade path
+java -jar preupgrade.jar FILE TEXT DIR /tmp/preupgrade
+
+# Run AutoUpgrade analyze mode (no changes)
+java -jar autoupgrade.jar -config upgrade.cfg -mode analyze
+
+# Check non-CDB status
+sqlplus / as sysdba
+SQL&gt; SELECT cdb FROM v$database;
+-- CDB = NO means you are running non-CDB and must convert first
+
+# Create a guaranteed restore point before upgrading
+SQL&gt; CREATE RESTORE POINT before_23ai GUARANTEE FLASHBACK DATABASE;
+</code></pre>
+<p>For the full step-by-step upgrade walkthrough, see the <a href="/install/upgrading-19c-to-23ai/">Upgrading from Oracle 19c to 23ai</a> guide.</p>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

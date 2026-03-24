@@ -1,0 +1,64 @@
+backend:
+  name: github
+  repo: rrappsfree/oracle23ai   # ← change this
+  branch: main
+
+# Saves media to this folder
+media_folder: "src/assets/images"
+public_folder: "/assets/images"
+
+collections:
+  # ── Blog Posts ────────────────────────────────────────
+  - name: "posts"
+    label: "Blog Posts"
+    folder: "src/posts"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Layout",      name: "layout",      widget: "hidden", default: "post.njk" }
+      - { label: "Title",       name: "title",        widget: "string" }
+      - { label: "Description", name: "description",  widget: "text" }
+      - { label: "Date",        name: "date",         widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Author",      name: "author",       widget: "string" }
+      - { label: "Read Time",   name: "readTime",     widget: "string",   hint: "e.g. 8 min" }
+      - label: "Tag"
+        name: "tag"
+        widget: "select"
+        options: ["Deep Dive", "Tutorial", "Performance", "DevOps", "Security", "Migration", "News"]
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        default: ["posts"]
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # ── Support Articles ──────────────────────────────────
+  - name: "support"
+    label: "Support Articles"
+    folder: "src/support"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Layout",      name: "layout",      widget: "hidden", default: "article.njk" }
+      - { label: "Title",       name: "title",        widget: "string" }
+      - { label: "Description", name: "description",  widget: "text" }
+      - { label: "Date",        name: "date",         widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Author",      name: "author",       widget: "string" }
+      - { label: "Read Time",   name: "readTime",     widget: "string",   hint: "e.g. 8 min" }
+      - label: "Tag"
+        name: "tag"
+        widget: "select"
+        options: ["Getting Started", "AI Features", "New Features", "Troubleshooting", "Security", "Performance", "Migration"]
+      - label: "Difficulty"
+        name: "difficulty"
+        widget: "select"
+        options: ["beginner", "intermediate", "advanced"]
+      - { label: "Sort Order",  name: "order",        widget: "number", default: 99 }
+      - label: "Category"
+        name: "category"
+        widget: "hidden"
+        default: "support"
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        default: ["support"]
+      - { label: "Body", name: "body", widget: "markdown" }

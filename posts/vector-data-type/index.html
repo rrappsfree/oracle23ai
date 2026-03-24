@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle 23ai: Everything You Need to Know About the VECTOR Data Type — Oracle 23ai Help Center</title>
+<meta name="description" content="The VECTOR data type is Oracle&#39;s most significant new primitive in over a decade. We cover its internals, index types, quantization options, and real-world performance benchmarks.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>Oracle 23ai: Everything You Need to Know About the VECTOR Data Type</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Deep Dive</span>
+        </div>
+        <h1 class="article-title">Oracle 23ai: Everything You Need to Know About the VECTOR Data Type</h1>
+        
+          <p class="article-description">The VECTOR data type is Oracle&#39;s most significant new primitive in over a decade. We cover its internals, index types, quantization options, and real-world performance benchmarks.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Maria Chen</span>
+          <span>March 14, 2025</span>
+          <span>12 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>What is the VECTOR Data Type?</h2>
+<p>Oracle Database 23ai introduces <code>VECTOR</code> as a first-class SQL data type. Unlike storing embeddings as BLOB or JSON, <code>VECTOR</code> is natively understood by the query optimizer, supports dedicated index structures, and has purpose-built distance functions.</p>
+<pre><code class="language-sql">-- Declare a 1536-dimension vector column (OpenAI embedding size)
+CREATE TABLE documents (
+  id       NUMBER PRIMARY KEY,
+  content  CLOB,
+  embed    VECTOR(1536, FLOAT32)
+);
+</code></pre>
+<p>The type signature is <code>VECTOR(dimensions, format)</code> where format can be <code>FLOAT32</code>, <code>FLOAT64</code>, <code>INT8</code>, or <code>BINARY</code>.</p>
+<h2>Distance Functions</h2>
+<p>Oracle 23ai ships five built-in distance metrics via <code>VECTOR_DISTANCE()</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>COSINE</code></td>
+<td>Text embeddings, semantic similarity</td>
+</tr>
+<tr>
+<td><code>DOT</code></td>
+<td>Normalized vectors, maximum inner product</td>
+</tr>
+<tr>
+<td><code>EUCLIDEAN</code></td>
+<td>Image embeddings, spatial data</td>
+</tr>
+<tr>
+<td><code>MANHATTAN</code></td>
+<td>Sparse feature vectors</td>
+</tr>
+<tr>
+<td><code>HAMMING</code></td>
+<td>Binary vectors, fingerprinting</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql">-- Semantic nearest-neighbour search
+SELECT id, content,
+       VECTOR_DISTANCE(embed, :query_vec, COSINE) AS score
+FROM documents
+ORDER BY score
+FETCH FIRST 10 ROWS ONLY;
+</code></pre>
+<h2>Index Types: HNSW vs IVF</h2>
+<h3>HNSW (Hierarchical Navigable Small World)</h3>
+<p>HNSW builds a multi-layer graph structure. Queries traverse from the top (sparse, long-range connections) down to the bottom (dense, local connections) — arriving at approximate nearest neighbours very quickly.</p>
+<pre><code class="language-sql">CREATE VECTOR INDEX docs_hnsw_idx ON documents (embed)
+ORGANIZATION INMEMORY NEIGHBOR GRAPH
+DISTANCE COSINE
+WITH TARGET ACCURACY 95;
+</code></pre>
+<p><strong>Best when:</strong> Low latency is critical, dataset fits in memory, read-heavy workload.</p>
+<h3>IVF (Inverted File Index)</h3>
+<p>IVF partitions the vector space into <code>k</code> clusters (Voronoi cells) using k-means. At query time only the nearest few clusters are probed, dramatically reducing the comparison count.</p>
+<pre><code class="language-sql">CREATE VECTOR INDEX docs_ivf_idx ON documents (embed)
+ORGANIZATION NEIGHBOR PARTITIONS
+DISTANCE COSINE
+WITH TARGET ACCURACY 90;
+</code></pre>
+<p><strong>Best when:</strong> Dataset is very large, memory is constrained, batch workloads.</p>
+<h2>Inserting Vectors</h2>
+<p>You can insert vectors as JSON arrays — Oracle automatically converts them:</p>
+<pre><code class="language-sql">INSERT INTO documents (id, content, embed)
+VALUES (
+  1,
+  'Oracle 23ai introduces native vector storage',
+  '[0.023, -0.117, 0.441, ...]'  -- 1536 floats
+);
+</code></pre>
+<p>Or generate embeddings inline using <code>DBMS_VECTOR.UTL_TO_EMBEDDING</code> if you've configured a model provider.</p>
+<h2>Performance Tips</h2>
+<ul>
+<li>Use <code>FLOAT32</code> instead of <code>FLOAT64</code> — halves storage, minimal accuracy loss for most models</li>
+<li>Set <code>TARGET ACCURACY</code> based on your recall requirements; 95 is a safe default</li>
+<li>For HNSW, ensure <code>vector_memory_size</code> is large enough to hold the index in memory</li>
+<li>Monitor index state with <code>V$VECTOR_MEMORY_POOL</code></li>
+</ul>
+<h2>Next Steps</h2>
+<p>Check out our guide on <a href="/support/rag-with-oracle-23ai/">Building a RAG Application with Oracle 23ai</a> to put these concepts into practice with a real retrieval pipeline.</p>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

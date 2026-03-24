@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Support — Oracle 23ai Help Center</title>
+<meta name="description" content="Technical support, guides, and blog for Oracle Database 23ai.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<div class="page-header">
+  <div class="section-label">// Technical Support</div>
+  <h1>Find Your Answer</h1>
+</div>
+
+<div class="support-index-grid">
+  
+  <a href="/support/installing-oracle-23ai-free/" class="support-index-card">
+    <div class="card-tag">Getting Started</div>
+    <h2 class="card-title">Installing Oracle Database 23ai Free</h2>
+    <p class="card-desc">Complete installation guide for Oracle Database 23ai Free on Oracle Linux, Windows, and Docker. Includes system requirements, step-by-step instructions, post-install configuration, and troubleshooting tips.</p>
+    <div class="card-meta">
+      
+        <span class="card-badge badge-beginner">beginner</span>
+      
+      
+        <span class="card-badge badge-info">20 min</span>
+      
+    </div>
+  </a>
+  
+</div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

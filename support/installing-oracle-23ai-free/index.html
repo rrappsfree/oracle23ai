@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installing Oracle Database 23ai Free — Oracle 23ai Help Center</title>
+<meta name="description" content="Complete installation guide for Oracle Database 23ai Free on Oracle Linux, Windows, and Docker. Includes system requirements, step-by-step instructions, post-install configuration, and troubleshooting tips.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    
+      <a href="/support/">Support</a>
+    
+    <span>›</span>
+    <span>Installing Oracle Database 23ai Free</span>
+  </nav>
+
+  <div class="article-container">
+
+    <!-- Main content -->
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Getting Started</span>
+          
+            <span class="article-difficulty difficulty-beginner">beginner</span>
+          
+        </div>
+        <h1 class="article-title">Installing Oracle Database 23ai Free</h1>
+        
+          <p class="article-description">Complete installation guide for Oracle Database 23ai Free on Oracle Linux, Windows, and Docker. Includes system requirements, step-by-step instructions, post-install configuration, and troubleshooting tips.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>March 20, 2025</span>
+          <span>20 min read</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>Overview</h2>
+<p>Oracle Database 23ai Free is a full-featured edition of Oracle Database 23ai with limits of 2 CPU threads, 2 GB RAM, and 12 GB user data. All 23ai features — including VECTOR, AI Functions, and JSON Relational Duality — are available within the free edition. No license is required.</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU threads</td>
+<td>2</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>2 GB</td>
+</tr>
+<tr>
+<td>User data</td>
+<td>12 GB</td>
+</tr>
+<tr>
+<td>License</td>
+<td>Free (no cost)</td>
+</tr>
+</tbody>
+</table>
+<p>Choose your platform below and follow the steps in order.</p>
+<hr>
+<h2>Linux (Oracle Linux / RHEL)</h2>
+<h3>System Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>Oracle Linux 8 or 9 (x86_64)</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>1 GB minimum, 2 GB recommended</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>10 GB minimum free space</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>x86_64 (64-bit)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Oracle Linux 10 is not yet officially supported for Oracle Database 23ai Free. Use Oracle Linux 8 or 9 for the most stable experience.</p>
+</blockquote>
+<h3>Step 1 — Update the system</h3>
+<p>Start with a fully updated system before installing any Oracle packages.</p>
+<pre><code class="language-bash">sudo dnf update -y
+sudo reboot
+</code></pre>
+<h3>Step 2 — Install the pre-install package</h3>
+<p>The Oracle pre-install meta-package automatically configures kernel parameters, system limits, and creates the <code>oracle</code> OS user. It is the recommended way to prepare your system.</p>
+<pre><code class="language-bash">sudo dnf install -y oracle-database-preinstall-23ai
+</code></pre>
+<h3>Step 3 — Download the RPM</h3>
+<pre><code class="language-bash">cd /tmp
+wget https://download.oracle.com/otn-pub/otn_software/db-free/oracle-database-free-23ai-1.0-1.el9.x86_64.rpm
+
+# Verify the download (~1.2 GB)
+ls -lh oracle-database-free-23ai-*.rpm
+</code></pre>
+<blockquote>
+<p>If the direct download fails, visit <strong>oracle.com/database/free/get-started</strong> and download the RPM manually after accepting the license agreement.</p>
+</blockquote>
+<h3>Step 4 — Install the RPM</h3>
+<pre><code class="language-bash">sudo dnf localinstall -y oracle-database-free-23ai-*.rpm
+</code></pre>
+<p>The installer creates the following directories:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/opt/oracle/product/23ai/dbhomeFree</code></td>
+<td>Oracle software (ORACLE_HOME)</td>
+</tr>
+<tr>
+<td><code>/opt/oracle/oradata/FREE</code></td>
+<td>Database data files</td>
+</tr>
+<tr>
+<td><code>/opt/oracle/diag/rdbms/free/FREE/trace/</code></td>
+<td>Alert log and trace files</td>
+</tr>
+</tbody>
+</table>
+<h3>Step 5 — Configure the database</h3>
+<p>Run the configuration script to create the <code>FREE</code> container database and <code>FREEPDB1</code> pluggable database.</p>
+<pre><code class="language-bash">sudo /etc/init.d/oracle-free-23ai configure
+</code></pre>
+<blockquote>
+<p><strong>Important:</strong> Save the passwords displayed during configuration. The script generates the initial SYS, SYSTEM, and PDBADMIN passwords — change them immediately after installation.</p>
+</blockquote>
+<h3>Step 6 — Set up environment variables</h3>
+<pre><code class="language-bash">sudo su - oracle
+cat &gt; ~/.bash_profile &lt;&lt; 'EOF'
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+export ORACLE_SID=FREE
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+EOF
+source ~/.bash_profile
+</code></pre>
+<h3>Step 7 — Enable auto-start</h3>
+<pre><code class="language-bash">sudo systemctl enable oracle-free-23ai
+sudo systemctl start oracle-free-23ai
+</code></pre>
+<h3>Step 8 — Verify the installation</h3>
+<pre><code class="language-bash"># Check service status
+sudo systemctl status oracle-free-23ai
+
+# Connect as SYSDBA
+sudo su - oracle
+sqlplus / as sysdba
+</code></pre>
+<pre><code class="language-sql">SELECT banner FROM v$version;
+SHOW PDBS;
+EXIT;
+</code></pre>
+<p>You should see <code>FREEPDB1</code> listed with <code>READ WRITE</code> status.</p>
+<h3>Step 9 — Change passwords and create a developer user</h3>
+<pre><code class="language-sql">-- Change default passwords immediately
+ALTER USER SYS IDENTIFIED BY YourNewSysPassword;
+ALTER USER SYSTEM IDENTIFIED BY YourNewSystemPassword;
+
+-- Switch to FREEPDB1 and change PDBADMIN
+ALTER SESSION SET CONTAINER = FREEPDB1;
+ALTER USER PDBADMIN IDENTIFIED BY YourNewPdbAdminPassword;
+
+-- Create a dedicated developer user
+CREATE USER appdev IDENTIFIED BY YourAppPassword;
+GRANT DB_DEVELOPER_ROLE, UNLIMITED TABLESPACE TO appdev;
+
+-- Test the connection from your terminal:
+-- sqlplus appdev/YourAppPassword@localhost:1521/FREEPDB1
+</code></pre>
+<h3>Linux Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Start database</td>
+<td><code>sudo systemctl start oracle-free-23ai</code></td>
+</tr>
+<tr>
+<td>Stop database</td>
+<td><code>sudo systemctl stop oracle-free-23ai</code></td>
+</tr>
+<tr>
+<td>Check status</td>
+<td><code>sudo systemctl status oracle-free-23ai</code></td>
+</tr>
+<tr>
+<td>View alert log</td>
+<td><code>tail -f $ORACLE_BASE/diag/rdbms/free/FREE/trace/alert_FREE.log</code></td>
+</tr>
+<tr>
+<td>Listener status</td>
+<td><code>lsnrctl status</code></td>
+</tr>
+<tr>
+<td>Connect to PDB</td>
+<td><code>sqlplus appdev/pw@localhost:1521/FREEPDB1</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Windows</h2>
+<h3>System Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>Windows Server 2019 or 2022 (64-bit)</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>8 GB minimum recommended</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>50 GB free space recommended</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>Intel or AMD x86-64</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>.NET Framework 4.8</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Windows Home Edition is not supported. Use Windows Server or Windows 10/11 Pro (64-bit).</p>
+</blockquote>
+<h3>Step 1 — Prepare the environment</h3>
+<p>Complete this pre-flight checklist before running the installer:</p>
+<ul>
+<li>Run as a Windows account with <strong>Administrator privileges</strong></li>
+<li>Disable UAC: Control Panel → User Accounts → Change UAC Settings → set to <strong>Never Notify</strong></li>
+<li>Allow TCP port <strong>1521</strong> through Windows Firewall</li>
+<li>Install <strong>.NET Framework 4.8</strong> if not already present</li>
+<li>Apply all latest <strong>Windows Updates</strong></li>
+<li>Ensure <code>ORACLE_HOME</code> and <code>TNS_ADMIN</code> environment variables are <strong>not</strong> already set from a previous Oracle installation</li>
+</ul>
+<h3>Step 2 — Download Oracle Database 23ai Free</h3>
+<p>Go to <strong>oracle.com/database/technologies/oracle-database-software-downloads.html</strong> and download <strong>Oracle Database 23ai Free for Windows (64-bit)</strong>. Extract the <code>.zip</code> file to a local folder such as <code>C:\Oracle23ai</code>.</p>
+<blockquote>
+<p>Ensure the installation directory cannot be modified by the <strong>Authenticated Users</strong> group — this is a security requirement from Oracle.</p>
+</blockquote>
+<h3>Step 3 — Run the Oracle Universal Installer</h3>
+<p>Open a Command Prompt <strong>as Administrator</strong>, navigate to the extracted folder, and run <code>setup.exe</code>. Follow the InstallShield wizard:</p>
+<ol>
+<li>In the <strong>Welcome</strong> window click <strong>Next</strong></li>
+<li>Accept the license agreement and click <strong>Next</strong></li>
+<li>The installer runs a prerequisite check — resolve any failures before continuing</li>
+<li>In <strong>Oracle Database Information</strong>, set a password for SYS, SYSTEM, and PDBADMIN — must contain uppercase, lowercase, a digit, and a special character</li>
+<li>Review the <strong>Summary</strong> and click <strong>Install</strong></li>
+<li>When complete, the <strong>Oracle Database Installed Successfully</strong> window appears</li>
+</ol>
+<p>The installer creates files at these default locations:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>C:\app\&lt;user&gt;\product\23ai\dbhomeFree</code></td>
+<td>Oracle Home</td>
+</tr>
+<tr>
+<td><code>C:\app\&lt;user&gt;\oradata\FREE</code></td>
+<td>Database data files</td>
+</tr>
+<tr>
+<td><code>C:\app\&lt;user&gt;\diag\rdbms\free\free\trace\</code></td>
+<td>Alert log</td>
+</tr>
+</tbody>
+</table>
+<h3>Step 4 — Configure the listener and verify</h3>
+<p>Open a Command Prompt as Administrator:</p>
+<pre><code class="language-cmd">REM Check listener status
+lsnrctl status
+
+REM Start listener if not running
+lsnrctl start
+
+REM Connect and verify
+sqlplus / as sysdba
+</code></pre>
+<pre><code class="language-sql">-- Open all pluggable databases
+ALTER PLUGGABLE DATABASE ALL OPEN;
+ALTER PLUGGABLE DATABASE ALL SAVE STATE;
+
+-- Confirm version
+SELECT * FROM v$version;
+EXIT;
+</code></pre>
+<h3>Step 5 — Enable automatic startup</h3>
+<p>Open <code>services.msc</code> and set both Oracle services to <strong>Automatic</strong> startup type:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Startup Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OracleServiceFREE</code></td>
+<td>Automatic</td>
+</tr>
+<tr>
+<td><code>OracleOraDB23HomeTNSListener</code></td>
+<td>Automatic</td>
+</tr>
+</tbody>
+</table>
+<h3>Step 6 — Create a developer user</h3>
+<pre><code class="language-sql">sqlplus / as sysdba
+
+-- Switch to FREEPDB1
+ALTER SESSION SET CONTAINER = FREEPDB1;
+
+-- Create developer user
+CREATE USER appdev IDENTIFIED BY YourAppPassword;
+GRANT DB_DEVELOPER_ROLE, UNLIMITED TABLESPACE TO appdev;
+EXIT;
+</code></pre>
+<h3>Step 7 — Connect with SQL Developer</h3>
+<p>Download Oracle SQL Developer from <strong>oracle.com/sqldeveloper</strong> and create a new connection:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hostname</td>
+<td><code>localhost</code></td>
+</tr>
+<tr>
+<td>Port</td>
+<td><code>1521</code></td>
+</tr>
+<tr>
+<td>Service Name</td>
+<td><code>FREEPDB1</code></td>
+</tr>
+<tr>
+<td>Username</td>
+<td><code>appdev</code> (or SYSTEM)</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>Password set during install</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Docker / Podman</h2>
+<p>Docker is the fastest way to get Oracle 23ai running on any platform — including macOS Apple Silicon and Windows.</p>
+<h3>System Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engine</td>
+<td>Docker 20+ or Podman 4+</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>x86_64 or ARM (aarch64)</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>2 GB allocated to container minimum</td>
+</tr>
+<tr>
+<td>Startup time</td>
+<td>Under 2 minutes</td>
+</tr>
+</tbody>
+</table>
+<h3>Step 1 — Pull and run the slim image</h3>
+<pre><code class="language-bash">docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1 \
+  gvenzl/oracle-free:23-slim
+
+# Monitor startup — wait for &quot;DATABASE IS READY TO USE!&quot;
+docker logs -f oracle23ai
+</code></pre>
+<blockquote>
+<p>When you see <strong>&quot;DATABASE IS READY TO USE!&quot;</strong> in the logs, the database is fully started and accepting connections on port 1521.</p>
+</blockquote>
+<h3>Step 2 — Run with persistent storage (recommended)</h3>
+<p>By default the container is ephemeral — all data is lost when it stops. Mount a named volume to persist data between restarts.</p>
+<pre><code class="language-bash"># Create a named volume
+docker volume create oracle-data
+
+# Run with persistence
+docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1 \
+  -v oracle-data:/opt/oracle/oradata \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<h3>Step 3 — Podman on Apple Silicon / ARM</h3>
+<pre><code class="language-bash">podman run --rm --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1 \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<h3>Step 4 — Connect and create a developer user</h3>
+<pre><code class="language-bash"># Connect to SQL*Plus inside the container
+docker exec -it oracle23ai sqlplus / as sysdba
+</code></pre>
+<pre><code class="language-sql">-- Switch to FREEPDB1
+ALTER SESSION SET CONTAINER = FREEPDB1;
+
+-- Create a developer user
+GRANT DB_DEVELOPER_ROLE, UNLIMITED TABLESPACE
+  TO developer IDENTIFIED BY &quot;free&quot;;
+
+-- Connect from outside the container:
+-- sqlplus developer/free@localhost:1521/FREEPDB1
+</code></pre>
+<h3>Image Variants</h3>
+<table>
+<thead>
+<tr>
+<th>Image</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gvenzl/oracle-free:23-slim</code></td>
+<td>Development — smallest, fastest pull</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23</code></td>
+<td>Standard tools included</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23-full</code></td>
+<td>All Oracle components</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23-slim-faststart</code></td>
+<td>Starts in seconds, pre-built DB</td>
+</tr>
+</tbody>
+</table>
+<h3>Docker Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Start container</td>
+<td><code>docker start oracle23ai</code></td>
+</tr>
+<tr>
+<td>Stop container</td>
+<td><code>docker stop oracle23ai</code></td>
+</tr>
+<tr>
+<td>View logs</td>
+<td><code>docker logs -f oracle23ai</code></td>
+</tr>
+<tr>
+<td>Connect SQL*Plus</td>
+<td><code>docker exec -it oracle23ai sqlplus / as sysdba</code></td>
+</tr>
+<tr>
+<td>Remove container</td>
+<td><code>docker rm -f oracle23ai</code></td>
+</tr>
+<tr>
+<td>List volumes</td>
+<td><code>docker volume ls</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>Database won't start (Linux)</h3>
+<p>Check the alert log for errors:</p>
+<pre><code class="language-bash">sudo su - oracle
+tail -100 $ORACLE_BASE/diag/rdbms/free/FREE/trace/alert_FREE.log
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ORA-00845</td>
+<td>Not enough RAM</td>
+<td>Free up memory or increase swap</td>
+</tr>
+<tr>
+<td>ORA-27102</td>
+<td>Out of memory</td>
+<td>Reduce <code>sga_target</code> in <code>init.ora</code></td>
+</tr>
+<tr>
+<td>Port 1521 in use</td>
+<td>Port conflict</td>
+<td>Run <code>ss -tlnp | grep 1521</code> to find it</td>
+</tr>
+<tr>
+<td>Permission error</td>
+<td>Wrong ownership</td>
+<td><code>chown -R oracle:oinstall /opt/oracle</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Cannot connect to database</h3>
+<pre><code class="language-sql">-- Check instance status
+SELECT status FROM v$instance;
+
+-- Check PDB status
+SHOW PDBS;
+
+-- Open PDB if closed
+ALTER PLUGGABLE DATABASE FREEPDB1 OPEN;
+</code></pre>
+<h3>Docker container exits immediately</h3>
+<pre><code class="language-bash"># Check what went wrong
+docker logs oracle23ai
+
+# Most common fix: not enough memory allocated to Docker
+# Docker Desktop → Settings → Resources → increase RAM to at least 4 GB
+</code></pre>
+<h3>ORA-01017: invalid username/password</h3>
+<p>Make sure you are connecting to the PDB, not the CDB root:</p>
+<pre><code class="language-bash"># Wrong — connects to CDB root
+sqlplus system/password@localhost:1521/FREE
+
+# Correct — connects to the PDB
+sqlplus system/password@localhost:1521/FREEPDB1
+</code></pre>
+
+      </div>
+
+      <!-- Related articles -->
+      
+      <div class="related-articles">
+        <div class="related-title">Related Articles</div>
+        <div class="related-grid">
+          
+            
+            <a href="/support/vector-search/" class="related-card">
+              <div class="related-card-title">Vector Search</div>
+              <div class="related-card-arrow">→</div>
+            </a>
+          
+            
+            <a href="/support/common-ora-errors/" class="related-card">
+              <div class="related-card-title">Common Ora Errors</div>
+              <div class="related-card-arrow">→</div>
+            </a>
+          
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Sidebar TOC -->
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+
+  </div>
+</article>
+
+<script>
+  // Auto-generate table of contents from h2/h3 headings
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+
+    // Highlight active heading on scroll
+    const tocLinks = toc.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(l => l.classList.remove('active'));
+          const active = toc.querySelector(`a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(h => observer.observe(h));
+  } else if (toc) {
+    toc.closest('.toc-box').style.display = 'none';
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

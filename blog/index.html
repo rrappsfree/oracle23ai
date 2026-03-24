@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Oracle 23ai Help Center</title>
+<meta name="description" content="Technical support, guides, and blog for Oracle Database 23ai.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<div class="page-header">
+  <div class="section-label">// Blog & Insights</div>
+  <h1>Latest from the Field</h1>
+</div>
+
+<div class="blog-index-grid">
+  
+  <a href="/posts/oracle-19c-vs-23ai-differences/" class="blog-card">
+    <div class="blog-card-tag">Deep Dive</div>
+    <h2 class="blog-card-title">Key Differences Between Oracle 19c and 23ai</h2>
+    <p class="blog-card-desc">A detailed side-by-side comparison of Oracle Database 19c and 23ai across AI capabilities, SQL and PL/SQL, security, performance, architecture, developer experience, and support lifecycle — to help you decide when and whether to upgrade.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>March 21, 2025</span>
+      <span>14 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/oracle-23ai-new-features/" class="blog-card">
+    <div class="blog-card-tag">Deep Dive</div>
+    <h2 class="blog-card-title">Oracle 23ai New Features: Everything You Need to Know</h2>
+    <p class="blog-card-desc">A comprehensive overview of Oracle Database 23ai&#39;s 300+ new features — from AI Vector Search and JSON Duality Views to SQL Firewall, Schema Privileges, True Cache, Property Graph, and developer quality-of-life improvements.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>March 20, 2025</span>
+      <span>16 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/vector-data-type/" class="blog-card">
+    <div class="blog-card-tag">Deep Dive</div>
+    <h2 class="blog-card-title">Oracle 23ai: Everything You Need to Know About the VECTOR Data Type</h2>
+    <p class="blog-card-desc">The VECTOR data type is Oracle&#39;s most significant new primitive in over a decade. We cover its internals, index types, quantization options, and real-world performance benchmarks.</p>
+    <div class="blog-card-meta">
+      <span>Maria Chen</span>
+      <span>March 14, 2025</span>
+      <span>12 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/json-duality-views/" class="blog-card">
+    <div class="blog-card-tag">Tutorial</div>
+    <h2 class="blog-card-title">JSON Relational Duality Views: Bridging Relational and Document Worlds</h2>
+    <p class="blog-card-desc">Oracle 23ai&#39;s JSON Duality Views let you work with relational data as JSON documents — and back again — without duplication, without syncing, and without compromise.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>February 28, 2025</span>
+      <span>9 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/hnsw-vs-ivf-benchmarking/" class="blog-card">
+    <div class="blog-card-tag">Performance</div>
+    <h2 class="blog-card-title">Benchmarking HNSW vs IVF Vector Indexes in Oracle 23ai</h2>
+    <p class="blog-card-desc">A deep dive into Oracle 23ai&#39;s two vector index types — HNSW and IVF — covering how each works, when to use them, tuning parameters, memory sizing, and real-world performance guidance.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>February 20, 2025</span>
+      <span>15 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/oracle-23ai-docker-production-setup/" class="blog-card">
+    <div class="blog-card-tag">DevOps</div>
+    <h2 class="blog-card-title">Running Oracle 23ai in Docker: A Production-Ready Setup</h2>
+    <p class="blog-card-desc">Everything you need to run Oracle Database 23ai in Docker from choosing the right image to persistent storage, Docker Compose, health checks, networking, backups, and connecting your application.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>February 12, 2025</span>
+      <span>14 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/schema-privileges-grant-all-antipatterns/" class="blog-card">
+    <div class="blog-card-tag">Security</div>
+    <h2 class="blog-card-title">Schema Privileges: The End of GRANT-ALL Anti-Patterns</h2>
+    <p class="blog-card-desc">Oracle 23ai introduces schema-level privileges — a long-awaited middle tier between granting access to a single object and granting access to everything. Here&#39;s why it matters, how it works, and how to migrate away from the GRANT ANY anti-pattern.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>January 31, 2025</span>
+      <span>10 min</span>
+    </div>
+  </a>
+  
+  <a href="/posts/upgrading-19c-to-23ai/" class="blog-card">
+    <div class="blog-card-tag">Migration</div>
+    <h2 class="blog-card-title">Upgrading from Oracle 19c to 23ai: Lessons Learned</h2>
+    <p class="blog-card-desc">A practical guide to upgrading Oracle Database 19c to 23ai — covering upgrade paths, AutoUpgrade tool walkthrough, pre-upgrade checks, non-CDB to CDB migration, common blockers, and post-upgrade validation.</p>
+    <div class="blog-card-meta">
+      <span>Oracle 23ai Help Team</span>
+      <span>January 18, 2025</span>
+      <span>18 min</span>
+    </div>
+  </a>
+  
+</div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

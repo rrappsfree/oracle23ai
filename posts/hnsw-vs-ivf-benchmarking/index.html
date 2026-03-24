@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmarking HNSW vs IVF Vector Indexes in Oracle 23ai — Oracle 23ai Help Center</title>
+<meta name="description" content="A deep dive into Oracle 23ai&#39;s two vector index types — HNSW and IVF — covering how each works, when to use them, tuning parameters, memory sizing, and real-world performance guidance.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>Benchmarking HNSW vs IVF Vector Indexes in Oracle 23ai</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Performance</span>
+        </div>
+        <h1 class="article-title">Benchmarking HNSW vs IVF Vector Indexes in Oracle 23ai</h1>
+        
+          <p class="article-description">A deep dive into Oracle 23ai&#39;s two vector index types — HNSW and IVF — covering how each works, when to use them, tuning parameters, memory sizing, and real-world performance guidance.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>February 20, 2025</span>
+          <span>15 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>Overview</h2>
+<p>Oracle Database 23ai ships with two approximate nearest neighbour (ANN) vector index types:</p>
+<ul>
+<li><strong>HNSW</strong> (Hierarchical Navigable Small World) — an in-memory graph-based index built for speed</li>
+<li><strong>IVF</strong> (Inverted File Flat) — a disk-based partitioned index built for large datasets with limited memory</li>
+</ul>
+<p>Both replace exhaustive similarity search — which computes <code>VECTOR_DISTANCE</code> against every row — with an approximate search that checks only a fraction of the data while staying within a configurable accuracy target.</p>
+<p>According to Oracle benchmarks, exact search on 50,000 vectors took 1.50 seconds versus 0.47 seconds with an HNSW index — over 3x faster with the same top-10 results. At millions of vectors the gap grows dramatically.</p>
+<hr>
+<h2>How HNSW Works</h2>
+<p>HNSW builds a multi-layer proximity graph where the topmost layer contains the fewest points and the bottom layer contains the most. When a query comes in, the search starts at the top layer and traverses downward, running an ANN algorithm at each layer to find the closest point before descending further.</p>
+<p>Graph-based indexing is very efficient because it allows searching through a high-dimensional space by progressively narrowing down the location at each layer. However, re-indexing can be challenging because the entire graph may need to be recreated when new vectors are inserted.</p>
+<p>The key characteristic: HNSW is an in-memory only index and can require a lot of memory for large datasets.</p>
+<h3>Creating an HNSW Index</h3>
+<pre><code class="language-sql">-- Configure vector pool memory FIRST (required for HNSW)
+ALTER SYSTEM SET vector_memory_size = 1G SCOPE=SPFILE;
+-- Restart the database to apply
+
+-- Create the HNSW index
+CREATE VECTOR INDEX docs_hnsw_idx ON documents (embedding)
+  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95;
+</code></pre>
+<h3>HNSW Tuning Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET ACCURACY</code></td>
+<td>95</td>
+<td>Higher = more accurate, slower build</td>
+</tr>
+<tr>
+<td><code>NEIGHBORS</code></td>
+<td>32</td>
+<td>Max connections per vector per layer — higher improves recall, increases memory</td>
+</tr>
+<tr>
+<td><code>EFCONSTRUCTION</code></td>
+<td>200</td>
+<td>Candidates considered during build — higher improves quality, slower build</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql">-- Tuned HNSW index for high-recall workloads
+CREATE VECTOR INDEX docs_hnsw_idx ON documents (embedding)
+  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 98
+  PARAMETERS (NEIGHBORS 64, EFCONSTRUCTION 400);
+</code></pre>
+<h3>HNSW Memory Sizing</h3>
+<p>Use this formula to estimate the vector pool size needed:</p>
+<pre><code>Memory = 1.3 × num_vectors × num_dimensions × bytes_per_dimension
+</code></pre>
+<p>For 1 million vectors at 1536 dimensions using FLOAT32 (4 bytes):</p>
+<pre><code>1.3 × 1,000,000 × 1536 × 4 = ~8 GB
+</code></pre>
+<pre><code class="language-sql">-- Check current vector pool usage
+SELECT pool, alloc_bytes, used_bytes, populate_status
+FROM V$VECTOR_MEMORY_POOL;
+
+-- Check per-index memory usage
+SELECT index_name, allocated_bytes, used_bytes, num_vectors
+FROM V$VECTOR_INDEX;
+</code></pre>
+<hr>
+<h2>How IVF Works</h2>
+<p>The IVF vector index uses a different search technique than HNSW. It is designed to enhance search efficiency by narrowing the search area through the use of neighbor partitions or clusters. The dataset size determines the number of partitions in the index, and the center of each partition — the centroid — represents the average vector for each partition.</p>
+<p>At query time, Oracle finds the nearest centroid to the query vector and searches only the vectors in that cluster — dramatically reducing the number of distance computations needed.</p>
+<p>A significant advantage of IVF is that it is not constrained by the amount of memory available in the vector pool like HNSW. Although IVF won't be as fast as an equivalent HNSW index, it can be used for very large datasets and still provide excellent performance compared to exhaustive similarity search.</p>
+<h3>Creating an IVF Index</h3>
+<pre><code class="language-sql">-- IVF index — no vector pool required
+CREATE VECTOR INDEX docs_ivf_idx ON documents (embedding)
+  ORGANIZATION NEIGHBOR PARTITIONS
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95;
+</code></pre>
+<h3>IVF Tuning Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET ACCURACY</code></td>
+<td>95</td>
+<td>Higher = more partitions probed at query time</td>
+</tr>
+<tr>
+<td><code>NEIGHBOR PARTITIONS</code></td>
+<td><code>√ num_vectors</code></td>
+<td>Number of clusters — more clusters = finer granularity</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql">-- IVF index with explicit partition count
+CREATE VECTOR INDEX docs_ivf_idx ON documents (embedding)
+  ORGANIZATION NEIGHBOR PARTITIONS
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95
+  PARAMETERS (NEIGHBOR PARTITIONS 512);
+</code></pre>
+<p>IVF vector indexes support global and local indexes on partitioned tables. For very large datasets that are partitioned, creating a locally partitioned IVF vector index means query performance can be further enhanced with partition pruning, avoiding a costly scan of the entire index.</p>
+<pre><code class="language-sql">-- Locally partitioned IVF for partitioned tables
+CREATE VECTOR INDEX docs_ivf_local_idx ON documents (embedding)
+  ORGANIZATION NEIGHBOR PARTITIONS LOCAL
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95;
+</code></pre>
+<hr>
+<h2>Head-to-Head Comparison</h2>
+<table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>HNSW</th>
+<th>IVF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage</td>
+<td>In-memory (vector pool)</td>
+<td>Disk (buffer cache)</td>
+</tr>
+<tr>
+<td>Query speed</td>
+<td>Faster</td>
+<td>Slightly slower</td>
+</tr>
+<tr>
+<td>Memory requirement</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Build time</td>
+<td>Faster</td>
+<td>Slower (k-means clustering)</td>
+</tr>
+<tr>
+<td>Dataset size</td>
+<td>Up to available memory</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Partitioned tables</td>
+<td>No</td>
+<td>Yes (local index)</td>
+</tr>
+<tr>
+<td>Re-indexing on DML</td>
+<td>Full rebuild may be needed</td>
+<td>Incremental updates</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Real-time search, RAG pipelines</td>
+<td>Large datasets, batch workloads</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>When to Use Each Index</h2>
+<p>Use HNSW when you have 100K to 10M vectors, need sub-100ms latency, and have memory available. Use IVF when you have 10M+ vectors, limited memory, and can tolerate slightly higher latency.</p>
+<h3>Choose HNSW when:</h3>
+<ul>
+<li>Your dataset fits in the vector pool (check with <code>V$VECTOR_MEMORY_POOL</code>)</li>
+<li>You need the lowest possible query latency (real-time search, user-facing RAG)</li>
+<li>Your workload is read-heavy with infrequent inserts</li>
+<li>You are building a semantic search or recommendation engine</li>
+</ul>
+<h3>Choose IVF when:</h3>
+<ul>
+<li>Your dataset is very large (tens of millions of vectors or more)</li>
+<li>Memory is constrained — you cannot allocate a large vector pool</li>
+<li>Your table is already partitioned and you want local index benefits</li>
+<li>Your workload involves batch similarity searches rather than real-time queries</li>
+<li>You need to support frequent DML (inserts, updates, deletes) without full index rebuilds</li>
+</ul>
+<hr>
+<h2>Using FETCH APPROXIMATE</h2>
+<p>Both index types require the <code>FETCH APPROXIMATE</code> clause to actually use the index. Without it, Oracle performs an exhaustive scan:</p>
+<pre><code class="language-sql">-- WITHOUT APPROXIMATE — performs exhaustive scan, ignores the index
+SELECT id, content
+FROM documents
+ORDER BY VECTOR_DISTANCE(embedding, :query_vec, COSINE)
+FETCH FIRST 10 ROWS ONLY;
+
+-- WITH APPROXIMATE — uses the vector index
+SELECT id, content
+FROM documents
+ORDER BY VECTOR_DISTANCE(embedding, :query_vec, COSINE)
+FETCH APPROXIMATE FIRST 10 ROWS ONLY;
+</code></pre>
+<p>You can also specify accuracy at query time to override the index default:</p>
+<pre><code class="language-sql">-- Override accuracy at query time
+SELECT id, content
+FROM documents
+ORDER BY VECTOR_DISTANCE(embedding, :query_vec, COSINE)
+FETCH APPROXIMATE FIRST 10 ROWS ONLY
+  WITH TARGET ACCURACY 90;
+</code></pre>
+<hr>
+<h2>Checking Execution Plans</h2>
+<p>Verify your query is actually using the vector index by checking the execution plan:</p>
+<pre><code class="language-sql">EXPLAIN PLAN FOR
+  SELECT id FROM documents
+  ORDER BY VECTOR_DISTANCE(embedding, :query_vec, COSINE)
+  FETCH APPROXIMATE FIRST 10 ROWS ONLY;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+</code></pre>
+<p>Look for these operations in the plan output:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VECTOR INDEX HNSW SCAN</code></td>
+<td>Using the HNSW in-memory graph index</td>
+</tr>
+<tr>
+<td><code>VECTOR INDEX IVF SCAN</code></td>
+<td>Using the IVF partitioned index</td>
+</tr>
+<tr>
+<td><code>TABLE ACCESS FULL</code></td>
+<td>No index used — exhaustive scan</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Measuring Index Accuracy</h2>
+<p>Oracle 23ai provides a built-in accuracy reporting tool to validate how closely your approximate results match the exact results:</p>
+<pre><code class="language-sql">-- Check accuracy of your HNSW index
+DECLARE
+  report CLOB;
+BEGIN
+  DBMS_VECTOR.INDEX_ACCURACY_QUERY(
+    owner_name   =&gt; 'YOUR_SCHEMA',
+    index_name   =&gt; 'DOCS_HNSW_IDX',
+    qv           =&gt; (SELECT embedding FROM documents WHERE id = 1),
+    top_K        =&gt; 10,
+    report       =&gt; report
+  );
+  DBMS_OUTPUT.PUT_LINE(report);
+END;
+/
+</code></pre>
+<hr>
+<h2>Monitoring and Maintenance</h2>
+<pre><code class="language-sql">-- Check index status and population progress
+SELECT owner, index_name, index_organization,
+       num_vectors, allocated_bytes, used_bytes
+FROM V$VECTOR_INDEX;
+
+-- Check vector pool health
+SELECT pool, alloc_bytes, used_bytes, populate_status
+FROM V$VECTOR_MEMORY_POOL;
+
+-- Rebuild HNSW index after heavy DML
+ALTER INDEX docs_hnsw_idx REBUILD;
+
+-- Drop and recreate IVF index to refresh centroids
+DROP INDEX docs_ivf_idx;
+CREATE VECTOR INDEX docs_ivf_idx ON documents (embedding)
+  ORGANIZATION NEIGHBOR PARTITIONS
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95;
+</code></pre>
+<hr>
+<h2>Common Pitfalls</h2>
+<h3>Distance metric mismatch</h3>
+<p>The distance metric used at query time must match the one used when the index was created — otherwise Oracle silently falls back to an exhaustive scan:</p>
+<pre><code class="language-sql">-- Index created with COSINE
+CREATE VECTOR INDEX idx ON documents(embedding)
+  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+  DISTANCE COSINE ...;
+
+-- Query must also use COSINE — this uses the index
+ORDER BY VECTOR_DISTANCE(embedding, :qv, COSINE)
+
+-- This does NOT use the index (EUCLIDEAN ≠ COSINE)
+ORDER BY VECTOR_DISTANCE(embedding, :qv, EUCLIDEAN)
+</code></pre>
+<h3>Forgetting FETCH APPROXIMATE</h3>
+<p>The single most common reason a vector index is not used. Always include <code>FETCH APPROXIMATE</code> in your nearest-neighbour queries.</p>
+<h3>Insufficient vector pool for HNSW</h3>
+<p>If <code>vector_memory_size</code> is too small, HNSW index creation fails. Use the sizing formula above and monitor <code>V$VECTOR_MEMORY_POOL</code> to ensure the pool is large enough before creating the index.</p>
+<hr>
+<h2>Quick Decision Guide</h2>
+<pre><code>Do you have memory for the full index?
+├── YES → How large is your dataset?
+│         ├── &lt; 10M vectors → HNSW (fastest queries)
+│         └── &gt; 10M vectors → IVF with large partition count
+└── NO  → IVF (disk-based, no vector pool needed)
+
+Is your table partitioned?
+└── YES → IVF with LOCAL option for partition pruning
+
+Do you need sub-50ms latency?
+└── YES → HNSW, size the vector pool generously
+
+Do you have frequent inserts/updates?
+└── YES → IVF (more DML-friendly than HNSW)
+</code></pre>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
