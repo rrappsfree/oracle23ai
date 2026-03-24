@@ -44,6 +44,7 @@ module.exports = function(eleventyConfig) {
   });
 
 return {
+  pathPrefix: '/oracle23ai/',
   dir: {
     input: "src",
     includes: "_includes",

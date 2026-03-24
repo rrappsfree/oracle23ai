@@ -49,7 +49,7 @@ layout: base.njk
         <div class="related-title">Related Articles</div>
         <div class="related-grid">
           {% for slug in related %}
-            {% set relatedPost = collections.support | selectattr("fileSlug", slug) %}
+            {% set relatedPost =  collections.support | selectattr("fileSlug", slug) %}
             <a href="/support/{{ slug }}/" class="related-card">
               <div class="related-card-title">{{ slug | replace("-", " ") | title }}</div>
               <div class="related-card-arrow">→</div>
