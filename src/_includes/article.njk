@@ -9,9 +9,9 @@ layout: base.njk
     <a href="/">Home</a>
     <span>›</span>
     {% if category == "support" %}
-      <a href="/support/">Support</a>
+      <a href="{{ '/support/' | url }}">Support</a>
     {% else %}
-      <a href="/blog/">Blog</a>
+      <a href="{{ '/blog/' | url }}">Blog</a>
     {% endif %}
     <span>›</span>
     <span>{{ title }}</span>
