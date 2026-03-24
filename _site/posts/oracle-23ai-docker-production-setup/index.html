@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Oracle 23ai in Docker: A Production-Ready Setup — Oracle 23ai Help Center</title>
+<meta name="description" content="Everything you need to run Oracle Database 23ai in Docker from choosing the right image to persistent storage, Docker Compose, health checks, networking, backups, and connecting your application.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>Running Oracle 23ai in Docker: A Production-Ready Setup</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">DevOps</span>
+        </div>
+        <h1 class="article-title">Running Oracle 23ai in Docker: A Production-Ready Setup</h1>
+        
+          <p class="article-description">Everything you need to run Oracle Database 23ai in Docker from choosing the right image to persistent storage, Docker Compose, health checks, networking, backups, and connecting your application.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>February 11, 2025</span>
+          <span>14 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>Why Docker for Oracle 23ai?</h2>
+<p>Running Oracle 23ai in Docker is the fastest way to get a fully featured database instance running on any machine — including macOS (Apple Silicon), Windows, and Linux — without a manual install. You get a consistent, reproducible environment that you can spin up in under two minutes, tear down cleanly, and version-control alongside your application code.</p>
+<p>There are two official image sources:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Image</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oracle Container Registry</td>
+<td><code>container-registry.oracle.com/database/free:latest</code></td>
+<td>Official Oracle image, requires free Oracle account login</td>
+</tr>
+<tr>
+<td>Gerald Venzl (community)</td>
+<td><code>gvenzl/oracle-free:23-slim</code></td>
+<td>No login required, widely used, multiple size variants</td>
+</tr>
+</tbody>
+</table>
+<p>This guide uses the <code>gvenzl/oracle-free</code> images — they require no registry login, start faster, and are the most widely adopted approach in the community.</p>
+<hr>
+<h2>Choosing the Right Image</h2>
+<p>The <code>gvenzl/oracle-free</code> repository offers four variants:</p>
+<table>
+<thead>
+<tr>
+<th>Image</th>
+<th>Size</th>
+<th>Startup time</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gvenzl/oracle-free:23-slim</code></td>
+<td>~1.5 GB</td>
+<td>~90 seconds</td>
+<td>Development, CI/CD pipelines</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23</code></td>
+<td>~3 GB</td>
+<td>~90 seconds</td>
+<td>Standard tools included</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23-full</code></td>
+<td>~5 GB</td>
+<td>~90 seconds</td>
+<td>All Oracle components</td>
+</tr>
+<tr>
+<td><code>gvenzl/oracle-free:23-slim-faststart</code></td>
+<td>~4.6 GB</td>
+<td>~10 seconds</td>
+<td>Local dev where fast restart matters</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>faststart</code> variants contain a pre-built database — they are larger to pull but start almost instantly after the first run. For CI/CD pipelines where cold start time matters, <code>faststart</code> is worth the larger image size.</p>
+<blockquote>
+<p><strong>Note:</strong> If you need Oracle Multilingual Engine (MLE) for JavaScript stored procedures, use the non-slim variants — MLE is not included in the slim images.</p>
+</blockquote>
+<hr>
+<h2>Quick Start</h2>
+<p>Pull and run the slim image:</p>
+<pre><code class="language-bash">docker pull gvenzl/oracle-free:23-slim
+
+docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<p>Monitor the startup:</p>
+<pre><code class="language-bash">docker logs -f oracle23ai
+</code></pre>
+<p>Wait for this line before attempting to connect:</p>
+<pre><code>DATABASE IS READY TO USE!
+</code></pre>
+<p>Connect immediately:</p>
+<pre><code class="language-bash">docker exec -it oracle23ai sqlplus / as sysdba
+</code></pre>
+<hr>
+<h2>Production-Ready Setup with Docker Compose</h2>
+<p>For anything beyond a quick test, use Docker Compose. It captures all your configuration in a single file, makes startup and teardown one command, and integrates cleanly into a multi-service application stack.</p>
+<p>Create a <code>docker-compose.yml</code> in your project root:</p>
+<pre><code class="language-yaml">version: &quot;3.8&quot;
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: oracle23ai
+    restart: unless-stopped
+    ports:
+      - &quot;1521:1521&quot;
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-StrongPass1#}
+      ORACLE_DATABASE: APPDB
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./init-scripts:/container-entrypoint-initdb.d
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;sqlplus&quot;, &quot;-L&quot;, &quot;system/${ORACLE_PASSWORD:-StrongPass1#}@//localhost:1521/FREEPDB1&quot;, &quot;@/dev/null&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    shm_size: 1g
+    mem_limit: 3g
+    cpus: &quot;2&quot;
+
+volumes:
+  oracle-data:
+    driver: local
+</code></pre>
+<p>Start the stack:</p>
+<pre><code class="language-bash">docker compose up -d
+docker compose logs -f oracle
+</code></pre>
+<p>Stop and clean up (data is preserved in the volume):</p>
+<pre><code class="language-bash">docker compose down
+</code></pre>
+<p>Destroy everything including data:</p>
+<pre><code class="language-bash">docker compose down -v
+</code></pre>
+<hr>
+<h2>Persistent Storage</h2>
+<p>Without a volume, all your data is lost when the container stops. Always mount a named volume or a host directory to <code>/opt/oracle/oradata</code>:</p>
+<pre><code class="language-bash"># Named volume (recommended — Docker manages the location)
+docker volume create oracle-data
+
+docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  -v oracle-data:/opt/oracle/oradata \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<pre><code class="language-bash"># Host directory mount (useful when you need direct file access)
+mkdir -p ~/oracle-data
+
+docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  -v ~/oracle-data:/opt/oracle/oradata \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<blockquote>
+<p>When using a host directory on Linux, the directory must be writable by uid <code>54321</code> (the oracle user inside the container):</p>
+<pre><code class="language-bash">sudo chown -R 54321:54321 ~/oracle-data
+</code></pre>
+</blockquote>
+<hr>
+<h2>Automatic Database and User Initialization</h2>
+<p>The <code>gvenzl/oracle-free</code> images support initialization scripts. Any <code>.sql</code> or <code>.sh</code> file placed in <code>/container-entrypoint-initdb.d</code> inside the container runs automatically on first startup — after the database is created but before it is marked ready.</p>
+<p>Create an <code>init-scripts/</code> folder in your project and add your setup SQL:</p>
+<pre><code class="language-bash">mkdir init-scripts
+</code></pre>
+<p><code>init-scripts/01_create_user.sql</code>:</p>
+<pre><code class="language-sql">-- Connect to FREEPDB1 and create application user
+ALTER SESSION SET CONTAINER = FREEPDB1;
+
+CREATE USER appuser IDENTIFIED BY AppPass1#;
+GRANT DB_DEVELOPER_ROLE TO appuser;
+GRANT UNLIMITED TABLESPACE TO appuser;
+GRANT CREATE SESSION TO appuser;
+</code></pre>
+<p><code>init-scripts/02_create_schema.sql</code>:</p>
+<pre><code class="language-sql">ALTER SESSION SET CONTAINER = FREEPDB1;
+
+-- Create tables
+CREATE TABLE appuser.products (
+  id          NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name        VARCHAR2(200) NOT NULL,
+  description CLOB,
+  embedding   VECTOR(1536),
+  created_at  TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+
+-- Create vector index for semantic search
+CREATE VECTOR INDEX products_vec_idx ON appuser.products (embedding)
+  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+  DISTANCE COSINE
+  WITH TARGET ACCURACY 95;
+</code></pre>
+<p>Mount the folder in your <code>docker run</code> command:</p>
+<pre><code class="language-bash">docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  -v oracle-data:/opt/oracle/oradata \
+  -v $(pwd)/init-scripts:/container-entrypoint-initdb.d \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<p>Scripts run in alphabetical order — prefix them with <code>01_</code>, <code>02_</code> etc. to control execution order. Scripts only run on first startup (when the data volume is empty).</p>
+<hr>
+<h2>Environment Variables Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ORACLE_PASSWORD</code></td>
+<td>Yes</td>
+<td>—</td>
+<td>Password for SYS, SYSTEM, and PDBADMIN</td>
+</tr>
+<tr>
+<td><code>ORACLE_DATABASE</code></td>
+<td>No</td>
+<td>—</td>
+<td>Creates an additional PDB with this name</td>
+</tr>
+<tr>
+<td><code>ORACLE_RANDOM_PASSWORD</code></td>
+<td>No</td>
+<td>—</td>
+<td>Set to any value to generate a random password (printed in logs)</td>
+</tr>
+<tr>
+<td><code>APP_USER</code></td>
+<td>No</td>
+<td>—</td>
+<td>Creates an application user in FREEPDB1</td>
+</tr>
+<tr>
+<td><code>APP_USER_PASSWORD</code></td>
+<td>No</td>
+<td>—</td>
+<td>Password for <code>APP_USER</code></td>
+</tr>
+</tbody>
+</table>
+<p>Using <code>APP_USER</code> and <code>APP_USER_PASSWORD</code> is a convenient shortcut for simple setups:</p>
+<pre><code class="language-bash">docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  -e APP_USER=appdev \
+  -e APP_USER_PASSWORD=AppPass1# \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+<p>This automatically creates the <code>appdev</code> user in <code>FREEPDB1</code> with <code>DB_DEVELOPER_ROLE</code> granted.</p>
+<hr>
+<h2>Connecting Your Application</h2>
+<h3>Connection string formats</h3>
+<pre><code class="language-bash"># SQL*Plus
+sqlplus appdev/AppPass1#@localhost:1521/FREEPDB1
+
+# JDBC (Java / Spring Boot)
+jdbc:oracle:thin:@localhost:1521/FREEPDB1
+
+# Python (python-oracledb)
+oracle+oracledb://appdev:AppPass1#@localhost:1521/?service_name=FREEPDB1
+
+# Node.js (node-oracledb)
+&quot;connectString&quot;: &quot;localhost:1521/FREEPDB1&quot;
+
+# SQL Developer / DBeaver
+Host: localhost  Port: 1521  Service: FREEPDB1
+</code></pre>
+<h3>Spring Boot with Docker Compose</h3>
+<p>Spring Boot 3.1+ has built-in Docker Compose support. Add the dependency and Spring auto-starts the compose stack when the app launches:</p>
+<pre><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-docker-compose&lt;/artifactId&gt;
+  &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml"># application.yml
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+    username: appdev
+    password: AppPass1#
+    driver-class-name: oracle.jdbc.OracleDriver
+</code></pre>
+<h3>Python (python-oracledb thin mode — no Oracle Client needed)</h3>
+<pre><code class="language-python">import oracledb
+
+conn = oracledb.connect(
+    user=&quot;appdev&quot;,
+    password=&quot;AppPass1#&quot;,
+    dsn=&quot;localhost:1521/FREEPDB1&quot;
+)
+
+cursor = conn.cursor()
+cursor.execute(&quot;SELECT banner FROM v$version&quot;)
+print(cursor.fetchone())
+conn.close()
+</code></pre>
+<hr>
+<h2>Health Checks and Waiting for Ready</h2>
+<p>Never connect to Oracle before it signals it is ready. In shell scripts use a loop:</p>
+<pre><code class="language-bash">#!/bin/bash
+echo &quot;Waiting for Oracle to be ready...&quot;
+until docker exec oracle23ai sqlplus -L system/StrongPass1#@//localhost:1521/FREEPDB1 /dev/null 2&gt;&amp;1 | grep -q &quot;Connected&quot;; do
+  echo &quot;  Still starting...&quot;
+  sleep 5
+done
+echo &quot;Oracle is ready.&quot;
+</code></pre>
+<p>In CI/CD pipelines (GitHub Actions):</p>
+<pre><code class="language-yaml">- name: Start Oracle
+  run: |
+    docker run -d \
+      --name oracle23ai \
+      -p 1521:1521 \
+      -e ORACLE_PASSWORD=StrongPass1# \
+      gvenzl/oracle-free:23-slim-faststart
+
+- name: Wait for Oracle
+  run: |
+    timeout 120 bash -c 'until docker logs oracle23ai 2&gt;&amp;1 | grep -q &quot;DATABASE IS READY TO USE&quot;; do sleep 3; done'
+
+- name: Run tests
+  run: npm test
+</code></pre>
+<hr>
+<h2>Backup and Restore</h2>
+<h3>Export with Data Pump</h3>
+<pre><code class="language-bash"># Create a directory object inside the container
+docker exec oracle23ai sqlplus system/StrongPass1#@//localhost:1521/FREEPDB1 &lt;&lt;EOF
+CREATE OR REPLACE DIRECTORY dp_dir AS '/opt/oracle/backup';
+GRANT READ, WRITE ON DIRECTORY dp_dir TO appdev;
+EXIT;
+EOF
+
+# Run expdp
+docker exec oracle23ai expdp appdev/AppPass1#@//localhost:1521/FREEPDB1 \
+  directory=dp_dir \
+  dumpfile=appdev_$(date +%Y%m%d).dmp \
+  logfile=appdev_export.log \
+  schemas=appdev
+
+# Copy the dump file to your host
+docker cp oracle23ai:/opt/oracle/backup/appdev_$(date +%Y%m%d).dmp ./backups/
+</code></pre>
+<h3>Import with Data Pump</h3>
+<pre><code class="language-bash"># Copy dump file into container
+docker cp ./backups/appdev_20250301.dmp oracle23ai:/opt/oracle/backup/
+
+# Run impdp
+docker exec oracle23ai impdp appdev/AppPass1#@//localhost:1521/FREEPDB1 \
+  directory=dp_dir \
+  dumpfile=appdev_20250301.dmp \
+  logfile=appdev_import.log \
+  schemas=appdev \
+  remap_schema=appdev:appdev
+</code></pre>
+<hr>
+<h2>Upgrading to a New Image Version</h2>
+<pre><code class="language-bash"># Pull the new image
+docker pull gvenzl/oracle-free:23-slim
+
+# Stop and remove the old container (data volume is preserved)
+docker compose down
+
+# Start with the new image — data volume is reattached automatically
+docker compose up -d
+</code></pre>
+<p>Because your data lives in a named volume, not in the container, upgrades are safe — the new container mounts the same volume and Oracle performs any required upgrades on first startup.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>Container exits immediately</h3>
+<pre><code class="language-bash"># Check logs for the actual error
+docker logs oracle23ai
+
+# Most common causes:
+# 1. Not enough memory — increase Docker Desktop RAM to 4 GB minimum
+# 2. Port 1521 already in use — check with: netstat -an | grep 1521
+# 3. Volume permission issue on Linux — chown -R 54321:54321 /your/data/dir
+</code></pre>
+<h3>ORA-12547 on fresh pull</h3>
+<p>This can happen when upgrading from Oracle 23c Free to 23ai Free if Docker has cached dangling image layers. Fix it by pruning stale images:</p>
+<pre><code class="language-bash">docker system prune -f
+docker pull gvenzl/oracle-free:23-slim
+</code></pre>
+<h3>Cannot connect — ORA-12541: no listener</h3>
+<pre><code class="language-bash"># Check the listener inside the container
+docker exec oracle23ai lsnrctl status
+
+# Restart the listener
+docker exec oracle23ai lsnrctl stop
+docker exec oracle23ai lsnrctl start
+</code></pre>
+<h3>Data volume appears empty after restart</h3>
+<p>You stopped the container with <code>docker compose down -v</code> which removes volumes. Use <code>docker compose down</code> (without <code>-v</code>) to preserve data.</p>
+<hr>
+<h2>Security Checklist for Team Environments</h2>
+<ul>
+<li>Store <code>ORACLE_PASSWORD</code> in a <code>.env</code> file and add <code>.env</code> to <code>.gitignore</code> — never commit passwords</li>
+<li>Use Docker secrets for production deployments on Docker Swarm or Kubernetes</li>
+<li>Expose port 1521 only to <code>127.0.0.1</code> in shared environments: <code>-p 127.0.0.1:1521:1521</code></li>
+<li>Rotate the SYS/SYSTEM password immediately after first startup in any environment accessible to others</li>
+<li>Use a dedicated application user (<code>APP_USER</code>) with minimal privileges — never connect your app as SYSTEM</li>
+</ul>
+<pre><code class="language-bash"># Bind to localhost only — not accessible from other machines on the network
+docker run -d \
+  --name oracle23ai \
+  -p 127.0.0.1:1521:1521 \
+  -e ORACLE_PASSWORD=StrongPass1# \
+  gvenzl/oracle-free:23-slim
+</code></pre>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

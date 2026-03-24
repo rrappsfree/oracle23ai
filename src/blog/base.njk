@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: Blog
+permalink: /blog/index.html
+---
+
+<div class="page-header">
+  <div class="section-label">// Blog & Insights</div>
+  <h1>Latest from the Field</h1>
+</div>
+
+<div class="blog-index-grid">
+  {% for post in collections.posts %}
+  <a href="{{ post.url }}" class="blog-card">
+    <div class="blog-card-tag">{{ post.data.tag }}</div>
+    <h2 class="blog-card-title">{{ post.data.title }}</h2>
+    <p class="blog-card-desc">{{ post.data.description }}</p>
+    <div class="blog-card-meta">
+      {% if post.data.author %}<span>{{ post.data.author }}</span>{% endif %}
+      <span>{{ post.date | readableDate }}</span>
+      {% if post.data.readTime %}<span>{{ post.data.readTime }}</span>{% endif %}
+    </div>
+  </a>
+  {% else %}
+  <p style="color: var(--text-muted); font-family: var(--mono);">No posts yet.</p>
+  {% endfor %}
+</div>

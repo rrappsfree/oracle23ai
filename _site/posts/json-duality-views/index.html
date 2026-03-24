@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Relational Duality Views: Bridging Relational and Document Worlds — Oracle 23ai Help Center</title>
+<meta name="description" content="Oracle 23ai&#39;s JSON Duality Views let you work with relational data as JSON documents — and back again — without duplication, without syncing, and without compromise.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>JSON Relational Duality Views: Bridging Relational and Document Worlds</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Tutorial</span>
+        </div>
+        <h1 class="article-title">JSON Relational Duality Views: Bridging Relational and Document Worlds</h1>
+        
+          <p class="article-description">Oracle 23ai&#39;s JSON Duality Views let you work with relational data as JSON documents — and back again — without duplication, without syncing, and without compromise.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>February 27, 2025</span>
+          <span>9 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>What Are JSON Relational Duality Views?</h2>
+<p>Oracle Database 23ai introduces JSON Relational Duality Views — one of the most significant new features of the release. They let you expose relational tables as JSON documents and work with them using either SQL or REST/JSON APIs, without ever duplicating your data.</p>
+<p>The core idea is simple: <strong>one set of data, two faces</strong>. Your data lives in normalized relational tables. A duality view exposes that same data as a JSON document. You can read it as JSON, update it as JSON, and the changes write back to the underlying relational tables automatically.</p>
+<pre><code class="language-sql">-- Underlying relational tables
+CREATE TABLE departments (
+  dept_id   NUMBER PRIMARY KEY,
+  dept_name VARCHAR2(100)
+);
+
+CREATE TABLE employees (
+  emp_id    NUMBER PRIMARY KEY,
+  emp_name  VARCHAR2(100),
+  dept_id   NUMBER REFERENCES departments(dept_id)
+);
+</code></pre>
+<p>Now create a duality view that exposes departments with their employees nested as a JSON array:</p>
+<pre><code class="language-sql">CREATE OR REPLACE JSON RELATIONAL DUALITY VIEW dept_dv AS
+  departments @INSERT @UPDATE @DELETE
+  {
+    deptId   : dept_id,
+    deptName : dept_name,
+    employees : employees @INSERT @UPDATE @DELETE
+    [
+      {
+        empId   : emp_id,
+        empName : emp_name
+      }
+    ]
+  };
+</code></pre>
+<p>That's it. You now have a view that looks and behaves like a document store.</p>
+<hr>
+<h2>Reading Data as JSON</h2>
+<p>Query the duality view exactly like any other view — but the result comes back as JSON:</p>
+<pre><code class="language-sql">SELECT data FROM dept_dv WHERE json_value(data, '$.deptId') = 10;
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-json">{
+  &quot;deptId&quot;: 10,
+  &quot;deptName&quot;: &quot;Engineering&quot;,
+  &quot;employees&quot;: [
+    { &quot;empId&quot;: 101, &quot;empName&quot;: &quot;Alice&quot; },
+    { &quot;empId&quot;: 102, &quot;empName&quot;: &quot;Bob&quot; }
+  ]
+}
+</code></pre>
+<p>The nested <code>employees</code> array is assembled from the <code>employees</code> table automatically — no JOIN needed in your query, no duplication in your schema.</p>
+<hr>
+<h2>Writing Data Through the View</h2>
+<p>This is where duality views get powerful. You can insert, update, and delete through the JSON view and Oracle handles the relational writes for you.</p>
+<h3>Insert a new department with employees</h3>
+<pre><code class="language-sql">INSERT INTO dept_dv VALUES ('{&quot;deptId&quot;: 20,
+  &quot;deptName&quot;: &quot;Marketing&quot;,
+  &quot;employees&quot;: [
+    {&quot;empId&quot;: 201, &quot;empName&quot;: &quot;Carol&quot;},
+    {&quot;empId&quot;: 202, &quot;empName&quot;: &quot;Dave&quot;}
+  ]
+}');
+COMMIT;
+</code></pre>
+<p>Oracle inserts one row into <code>departments</code> and two rows into <code>employees</code> — all from a single JSON document insert.</p>
+<h3>Update a nested field</h3>
+<pre><code class="language-sql">UPDATE dept_dv d
+SET d.data = json_transform(d.data, SET '$.deptName' = 'Product Marketing')
+WHERE json_value(d.data, '$.deptId') = 20;
+COMMIT;
+</code></pre>
+<p>The update writes directly to the <code>departments</code> table — no trigger, no sync job.</p>
+<h3>Delete through the view</h3>
+<pre><code class="language-sql">DELETE FROM dept_dv d
+WHERE json_value(d.data, '$.deptId') = 20;
+COMMIT;
+</code></pre>
+<p>This deletes the department and, depending on your foreign key constraints, the associated employees too.</p>
+<hr>
+<h2>The @INSERT @UPDATE @DELETE Annotations</h2>
+<p>The annotations in the duality view definition control which DML operations are permitted on each table through the view:</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@INSERT</code></td>
+<td>Allow inserts into this table through the view</td>
+</tr>
+<tr>
+<td><code>@UPDATE</code></td>
+<td>Allow updates to this table through the view</td>
+</tr>
+<tr>
+<td><code>@DELETE</code></td>
+<td>Allow deletes from this table through the view</td>
+</tr>
+<tr>
+<td><code>@NOUPDATE</code></td>
+<td>This field is read-only through the view</td>
+</tr>
+<tr>
+<td><code>@CHECK</code></td>
+<td>Validate the value against the relational constraint</td>
+</tr>
+</tbody>
+</table>
+<p>You can make parts of the document read-only while keeping others writable:</p>
+<pre><code class="language-sql">CREATE OR REPLACE JSON RELATIONAL DUALITY VIEW dept_readonly_dv AS
+  departments @INSERT @UPDATE
+  {
+    deptId   : dept_id   @NOUPDATE,
+    deptName : dept_name,
+    employees : employees @INSERT
+    [
+      {
+        empId   : emp_id   @NOUPDATE,
+        empName : emp_name
+      }
+    ]
+  };
+</code></pre>
+<p>Here <code>deptId</code> and <code>empId</code> (primary keys) are marked <code>@NOUPDATE</code> — they can be set on insert but not changed afterward.</p>
+<hr>
+<h2>ETAG-Based Optimistic Locking</h2>
+<p>Every document returned by a duality view includes an <code>_metadata</code> field with an <code>etag</code>:</p>
+<pre><code class="language-json">{
+  &quot;_metadata&quot;: { &quot;etag&quot;: &quot;A1B2C3D4E5F6&quot; },
+  &quot;deptId&quot;: 10,
+  &quot;deptName&quot;: &quot;Engineering&quot;,
+  &quot;employees&quot;: [...]
+}
+</code></pre>
+<p>When you update through the view, Oracle checks that the etag you submit matches the current etag in the database. If someone else updated the document between your read and your write, the etags won't match and Oracle returns an error — preventing lost updates without pessimistic locking.</p>
+<pre><code class="language-sql">UPDATE dept_dv d
+SET d.data = '{&quot;_metadata&quot;: {&quot;etag&quot;: &quot;A1B2C3D4E5F6&quot;},
+               &quot;deptId&quot;: 10,
+               &quot;deptName&quot;: &quot;Engineering UPDATED&quot;,
+               &quot;employees&quot;: [...]}'
+WHERE json_value(d.data, '$.deptId') = 10;
+</code></pre>
+<p>This makes duality views safe for concurrent REST API clients out of the box.</p>
+<hr>
+<h2>Using Duality Views with ORDS (REST)</h2>
+<p>Oracle REST Data Services (ORDS) can expose duality views as REST endpoints automatically. Once enabled, your duality view becomes a full REST API:</p>
+<pre><code class="language-bash"># GET a document
+GET /ords/hr/dept_dv/10
+
+# PUT to update
+PUT /ords/hr/dept_dv/10
+Content-Type: application/json
+{ &quot;deptId&quot;: 10, &quot;deptName&quot;: &quot;Engineering Updated&quot;, ... }
+
+# POST to insert
+POST /ords/hr/dept_dv
+Content-Type: application/json
+{ &quot;deptId&quot;: 30, &quot;deptName&quot;: &quot;Design&quot;, &quot;employees&quot;: [] }
+
+# DELETE
+DELETE /ords/hr/dept_dv/30
+</code></pre>
+<p>No custom API code needed — the duality view is the API.</p>
+<hr>
+<h2>Performance Considerations</h2>
+<p>Duality views are not a performance compromise. Oracle generates optimized SQL for every read and write through the view. Key points:</p>
+<ul>
+<li><strong>Reads</strong> use the same query optimizer as regular SQL — indexes on the underlying tables are used automatically</li>
+<li><strong>Writes</strong> go directly to the relational tables with full ACID guarantees</li>
+<li><strong>No materialization</strong> — the JSON is assembled on the fly, not stored separately</li>
+<li><strong>No sync overhead</strong> — there is no background process keeping JSON and relational data in sync because they are the same data</li>
+</ul>
+<p>For read-heavy workloads on large nested documents, consider adding indexes on the JSON fields you filter by most:</p>
+<pre><code class="language-sql">CREATE INDEX emp_dept_idx ON employees(dept_id);
+</code></pre>
+<hr>
+<h2>When to Use Duality Views</h2>
+<p>Duality views are ideal when:</p>
+<ul>
+<li>You have an existing relational schema and want to expose it to a modern JSON-based frontend or mobile app</li>
+<li>You are building a microservice that needs REST/JSON access but want to keep relational integrity and ACID transactions</li>
+<li>You want to avoid the complexity of maintaining separate relational and document stores in sync</li>
+<li>You are migrating from MongoDB or a document database and want Oracle's query power without re-architecting your schema</li>
+</ul>
+<p>They are not a replacement for a pure document store in every scenario — if your data is genuinely schema-less and deeply nested, a document-first design may still be more appropriate.</p>
+<hr>
+<h2>Quick Reference</h2>
+<pre><code class="language-sql">-- Create a duality view
+CREATE OR REPLACE JSON RELATIONAL DUALITY VIEW my_dv AS
+  parent_table @INSERT @UPDATE @DELETE
+  {
+    id   : parent_id,
+    name : parent_name,
+    children : child_table @INSERT @UPDATE @DELETE
+    [{ childId : child_id, childName : child_name }]
+  };
+
+-- Query as JSON
+SELECT data FROM my_dv;
+
+-- Filter by JSON field
+SELECT data FROM my_dv
+WHERE json_value(data, '$.id') = 1;
+
+-- Insert via JSON
+INSERT INTO my_dv VALUES ('{&quot;id&quot;:1,&quot;name&quot;:&quot;Test&quot;,&quot;children&quot;:[]}');
+
+-- Update via JSON
+UPDATE my_dv SET data = json_transform(data, SET '$.name' = 'Updated')
+WHERE json_value(data, '$.id') = 1;
+
+-- Check view definition
+SELECT * FROM user_json_duality_views;
+</code></pre>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

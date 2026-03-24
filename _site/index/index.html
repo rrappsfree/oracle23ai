@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle 23ai Help Center</title>
+<meta name="description" content="Technical support, guides, and blog for Oracle Database 23ai.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+    <li><a href="#" class="nav-cta">Open a Ticket</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+   
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#support">Support</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#versions">Versions</a></li>
+    <li><a href="#" class="nav-cta">Open a Ticket</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">Oracle 23ai Help Center</div>
+    <h1>Your AI-Native<br>Database <em>Guide</em></h1>
+    <p class="hero-desc">Comprehensive technical support, tutorials, and insights for Oracle Database 23ai � the first AI-native database from Oracle.</p>
+    <div class="hero-actions">
+      <a href="#support" class="btn-primary">Browse Support</a>
+      <a href="#blog" class="btn-ghost">Read the Blog</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="terminal-title">oracle23ai � sqlplus</div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-comment">-- Oracle Database 23ai</span></div>
+        <div><span class="t-comment">-- AI Vector Search Example</span></div>
+        <div>&nbsp;</div>
+        <div>
+          <span class="t-prompt">SQL&gt; </span>
+          <span class="t-keyword">CREATE TABLE</span>
+          <span class="t-cmd"> docs (</span>
+        </div>
+        <div>
+          <span class="t-cmd">&nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER,</span>
+        </div>
+        <div>
+          <span class="t-cmd">&nbsp;&nbsp;&nbsp;content </span>
+          <span class="t-keyword">CLOB</span><span class="t-cmd">,</span>
+        </div>
+        <div>
+          <span class="t-cmd">&nbsp;&nbsp;&nbsp;embed&nbsp;&nbsp;&nbsp;</span>
+          <span class="t-keyword">VECTOR</span>
+          <span class="t-cmd">(1536)</span>
+        </div>
+        <div><span class="t-cmd">);</span></div>
+        <div>&nbsp;</div>
+        <div>
+          <span class="t-output">Table created.</span>
+        </div>
+        <div>&nbsp;</div>
+        <div>
+          <span class="t-prompt">SQL&gt; </span>
+          <span class="t-keyword">SELECT</span>
+          <span class="t-cmd"> id, </span>
+          <span class="t-keyword">VECTOR_DISTANCE</span>
+        </div>
+        <div>
+          <span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(embed, :query_vec)</span>
+        </div>
+        <div>
+          <span class="t-keyword">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM</span>
+          <span class="t-cmd"> docs</span>
+        </div>
+        <div>
+          <span class="t-keyword">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORDER BY</span>
+          <span class="t-cmd"> 2 </span>
+          <span class="t-keyword">FETCH FIRST</span>
+          <span class="t-cmd"> 5 </span>
+          <span class="t-keyword">ROWS ONLY</span><span class="t-cmd">;</span>
+        </div>
+        <div>&nbsp;</div>
+        <div>
+          <span class="t-prompt">SQL&gt; </span><span class="t-cursor"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM STATUS -->
+<div class="status-section">
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <div class="status-text">All Systems Operational</div>
+    </div>
+    <div class="status-items">
+      <div class="status-item">Oracle Cloud Infrastructure</div>
+      <div class="status-item">23ai Documentation API</div>
+      <div class="status-item">Support Portal</div>
+      <div class="status-item">Knowledge Base</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-label">// Search the knowledge base</div>
+  <div class="search-bar">
+    <span class="search-icon">?</span>
+    <input type="text" placeholder="Search docs, errors, how-tos...">
+    <button>Search</button>
+  </div>
+  <div class="search-tags">
+    <button class="search-tag">Vector Search</button>
+    <button class="search-tag">AI Functions</button>
+    <button class="search-tag">JSON Relational Duality</button>
+    <button class="search-tag">ORA-04036</button>
+    <button class="search-tag">Installation Guide</button>
+    <button class="search-tag">Performance Tuning</button>
+    <button class="search-tag">RAG with Oracle</button>
+    <button class="search-tag">Free Edition</button>
+  </div>
+</div>
+
+<!-- SUPPORT -->
+<section id="support" class="reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Technical Support</div>
+      <h2>Find Your Answer</h2>
+    </div>
+    <a href="#" class="see-all">View All Articles ?</a>
+  </div>
+
+  <div class="support-grid">
+    <a href="#" class="support-card">
+      <div class="card-icon">?</div>
+      <div class="card-tag">Getting Started</div>
+      <div class="card-title">Installing Oracle Database 23ai Free</div>
+      <div class="card-desc">Step-by-step guide for installing Oracle 23ai on Linux, Windows, and Docker. Includes pre-flight checklist and post-install configuration.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-new">New</span>
+        <span class="card-badge badge-info">12 min read</span>
+      </div>
+    </a>
+    <a href="#" class="support-card">
+      <div class="card-icon">??</div>
+      <div class="card-tag">AI Features</div>
+      <div class="card-title">Vector Search & VECTOR Data Type</div>
+      <div class="card-desc">Create vector embeddings, store them natively, and query with VECTOR_DISTANCE. Build semantic search and RAG pipelines directly in SQL.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-new">New in 23ai</span>
+        <span class="card-badge badge-info">20 min read</span>
+      </div>
+    </a>
+    <a href="#" class="support-card">
+      <div class="card-icon">??</div>
+      <div class="card-tag">New Features</div>
+      <div class="card-title">JSON Relational Duality Views</div>
+      <div class="card-desc">Expose relational data as JSON documents without duplication. Understand the duality view syntax, updatability rules, and performance implications.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-new">New in 23ai</span>
+        <span class="card-badge badge-info">16 min read</span>
+      </div>
+    </a>
+    <a href="#" class="support-card">
+      <div class="card-icon">??</div>
+      <div class="card-tag">Troubleshooting</div>
+      <div class="card-title">Common ORA- Errors & Fixes</div>
+      <div class="card-desc">Diagnose and resolve ORA-04036, ORA-00942, ORA-12541 and other frequently encountered errors. Includes root cause analysis and corrective steps.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-critical">High Traffic</span>
+        <span class="card-badge badge-info">8 min read</span>
+      </div>
+    </a>
+    <a href="#" class="support-card">
+      <div class="card-icon">??</div>
+      <div class="card-tag">Security</div>
+      <div class="card-title">Schema Privileges & Least Privilege Access</div>
+      <div class="card-desc">Oracle 23ai introduces schema-level privileges, simplifying access control. Learn how to migrate from object-level grants and enforce least privilege.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-updated">Updated</span>
+        <span class="card-badge badge-info">11 min read</span>
+      </div>
+    </a>
+    <a href="#" class="support-card">
+      <div class="card-icon">??</div>
+      <div class="card-tag">Performance</div>
+      <div class="card-title">SQL Analysis Report & Optimizer</div>
+      <div class="card-desc">Use the new SQL Analysis Report to identify anti-patterns, implicit conversions, and Cartesian joins during development � not production.</div>
+      <div class="card-meta">
+        <span class="card-badge badge-new">New in 23ai</span>
+        <span class="card-badge badge-info">14 min read</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- FEATURED + FAQ -->
+  <div class="featured-support" style="margin-top: 32px;">
+    <div class="featured-left">
+      <div class="card-tag">Featured Guide</div>
+      <h3 style="font-family: var(--serif); font-size: 32px; line-height: 1.2; margin-bottom: 16px;">Building a RAG Application with Oracle 23ai Vector Search</h3>
+      <p style="font-family: var(--mono); font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px;">This comprehensive guide walks you through creating a full retrieval-augmented generation pipeline � from ingesting documents and generating embeddings, to running semantic queries and integrating with LLM APIs using Oracle's native VECTOR type.</p>
+      <a href="#" class="btn-primary" style="display:inline-flex;">Read Full Guide ?</a>
+    </div>
+    <div class="featured-right">
+      <div class="card-tag" style="margin-bottom: 16px;">Frequently Asked Questions</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is Oracle Database 23ai? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Oracle Database 23ai is Oracle's latest long-term support release, designed from the ground up for AI workloads. It includes native VECTOR data types, AI Functions (DBMS_VECTOR), and deep integration with machine learning pipelines � all within the same trusted relational engine.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is Oracle 23ai free to use? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Yes. Oracle offers a free edition of 23ai (Oracle Database Free) with limits of 2 CPUs, 2GB RAM, and 12GB user data. It's free for development and testing without requiring an Oracle license.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How does VECTOR_DISTANCE work? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">VECTOR_DISTANCE is a built-in SQL function that computes similarity between two VECTOR values. It supports cosine, dot product, Euclidean, Manhattan, and Hamming metrics. Use it in ORDER BY to find the nearest neighbors to a query embedding.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I migrate from Oracle 19c to 23ai? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Yes. Oracle supports direct upgrade paths from 19c to 23ai using DBUA, manual upgrade scripts, or Data Pump export/import. Review the Pre-Upgrade Information Tool (preupgrade.jar) output and address all warnings before proceeding.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" class="reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Blog & Insights</div>
+      <h2>Latest from the Field</h2>
+    </div>
+    <a href="#" class="see-all">All Posts ?</a>
+  </div>
+
+  <div class="blog-layout">
+    <a href="#" class="blog-featured">
+      <div class="blog-featured-img">
+        <div class="blog-featured-img-inner">23ai</div>
+        <div class="version-badge">v23.4 � March 2025</div>
+      </div>
+      <div class="blog-featured-body">
+        <div class="post-category">Deep Dive</div>
+        <div class="post-title">Oracle 23ai: Everything You Need to Know About the VECTOR Data Type</div>
+        <p class="post-excerpt">The VECTOR data type is Oracle's most significant new primitive in over a decade. In this post, we cover its internals, index types (HNSW vs IVF), quantization options, and real-world performance benchmarks against pgvector and Pinecone.</p>
+        <div class="post-meta">
+          <span class="post-author">Maria Chen</span>
+          <span>Mar 14, 2025</span>
+          <span>12 min read</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="blog-list">
+      <a href="#" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">Tutorial</div>
+        <div class="list-post-title">JSON Duality Views: Bridging Relational and Document Worlds</div>
+        <div class="list-post-meta"><span>Feb 28, 2025</span><span>9 min</span></div>
+      </a>
+      <a href="#" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">Performance</div>
+        <div class="list-post-title">Benchmarking HNSW vs IVF Vector Indexes in Oracle 23ai</div>
+        <div class="list-post-meta"><span>Feb 20, 2025</span><span>15 min</span></div>
+      </a>
+      <a href="#" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">DevOps</div>
+        <div class="list-post-title">Running Oracle 23ai in Docker: A Production-Ready Setup</div>
+        <div class="list-post-meta"><span>Feb 12, 2025</span><span>7 min</span></div>
+      </a>
+      <a href="#" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">Security</div>
+        <div class="list-post-title">Schema Privileges: The End of GRANT-ALL Anti-Patterns</div>
+        <div class="list-post-meta"><span>Jan 31, 2025</span><span>6 min</span></div>
+      </a>
+      <a href="#" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">Migration</div>
+        <div class="list-post-title">Upgrading from Oracle 19c to 23ai: Lessons Learned</div>
+        <div class="list-post-meta"><span>Jan 18, 2025</span><span>11 min</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- VERSIONS -->
+<section id="versions" class="reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Release History</div>
+      <h2>Version Timeline</h2>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot current"></div>
+        <div class="timeline-label">Current Release � 2024</div>
+        <div class="timeline-version">Oracle 23ai <span class="current-tag">CURRENT</span></div>
+        <p style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px;">AI-native release featuring native vector storage, AI Functions, JSON Duality Views, and schema-level privileges.</p>
+        <div class="timeline-features">
+          <span class="feature-chip highlight">VECTOR type</span>
+          <span class="feature-chip highlight">AI Functions</span>
+          <span class="feature-chip highlight">JSON Duality</span>
+          <span class="feature-chip">Schema Privileges</span>
+          <span class="feature-chip">SQL Domains</span>
+          <span class="feature-chip">True Cache</span>
+          <span class="feature-chip">Property Graph</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-label">LTS Release � 2019</div>
+        <div class="timeline-version">Oracle 19c</div>
+        <p style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px;">Long-term support release. Stable, widely deployed, supported through extended support.</p>
+        <div class="timeline-features">
+          <span class="feature-chip">Automatic Indexing</span>
+          <span class="feature-chip">Real-Time Stats</span>
+          <span class="feature-chip">JSON Enhancement</span>
+          <span class="feature-chip">Multitenant</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-label">LTS Release � 2017</div>
+        <div class="timeline-version">Oracle 18c / 12c</div>
+        <div class="timeline-features">
+          <span class="feature-chip">Multitenant CDB</span>
+          <span class="feature-chip">In-Memory</span>
+          <span class="feature-chip">Approximate Query</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 36px;">
+        <div class="card-tag" style="margin-bottom: 16px;">23ai Key Numbers</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">3000+</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">New Features</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">8</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Vector Dimensions</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">5</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Distance Metrics</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">Free</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Developer Edition</div>
+          </div>
+        </div>
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+          <div style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); line-height: 1.8;">
+            Oracle 23ai is the first Oracle Database release with <em style="color: var(--text);">AI as a core architectural principle</em> � not a bolt-on. Vector storage and search are first-class citizens handled entirely within SQL.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Support</div>
+      <ul>
+        <li><a href="/support/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/support/">Error Reference</a></li>
+        <li><a href="/support/">AI Features</a></li>
+        <li><a href="/support/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

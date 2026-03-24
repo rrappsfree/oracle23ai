@@ -1,0 +1,261 @@
+---
+layout: base.njk
+title: Home
+permalink: /index.html
+---
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">Oracle 23ai Help Center</div>
+    <h1>Your AI-Native<br>Database <em>Guide</em></h1>
+    <p class="hero-desc">Comprehensive technical support, tutorials, and insights for Oracle Database 23ai — the first AI-native database from Oracle.</p>
+    <div class="hero-actions">
+      <a href="/support/" class="btn-primary">Browse Support</a>
+      <a href="/blog/" class="btn-ghost">Read the Blog</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="terminal-title">oracle23ai — sqlplus</div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-comment">-- Oracle Database 23ai</span></div>
+        <div><span class="t-comment">-- AI Vector Search Example</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-prompt">SQL&gt; </span><span class="t-keyword">CREATE TABLE</span><span class="t-cmd"> docs (</span></div>
+        <div><span class="t-cmd">&nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER,</span></div>
+        <div><span class="t-cmd">&nbsp;&nbsp;&nbsp;content </span><span class="t-keyword">CLOB</span><span class="t-cmd">,</span></div>
+        <div><span class="t-cmd">&nbsp;&nbsp;&nbsp;embed&nbsp;&nbsp;&nbsp;</span><span class="t-keyword">VECTOR</span><span class="t-cmd">(1536)</span></div>
+        <div><span class="t-cmd">);</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-output">Table created.</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-prompt">SQL&gt; </span><span class="t-keyword">SELECT</span><span class="t-cmd"> id, </span><span class="t-keyword">VECTOR_DISTANCE</span></div>
+        <div><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(embed, :query_vec)</span></div>
+        <div><span class="t-keyword">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM</span><span class="t-cmd"> docs</span></div>
+        <div><span class="t-keyword">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORDER BY</span><span class="t-cmd"> 2 </span><span class="t-keyword">FETCH FIRST</span><span class="t-cmd"> 5 </span><span class="t-keyword">ROWS ONLY</span><span class="t-cmd">;</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-prompt">SQL&gt; </span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM STATUS -->
+<div class="status-section">
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <div class="status-text">All Systems Operational</div>
+    </div>
+    <div class="status-items">
+      <div class="status-item">Oracle Cloud Infrastructure</div>
+      <div class="status-item">23ai Documentation API</div>
+      <div class="status-item">Support Portal</div>
+      <div class="status-item">Knowledge Base</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-label">// Search the knowledge base</div>
+  <div class="search-bar">
+    <span class="search-icon">⌕</span>
+    <input type="text" placeholder="Search docs, errors, how-tos..." id="hero-search">
+    <button onclick="triggerSearch()">Search</button>
+  </div>
+  <div class="search-tags">
+    <button class="search-tag">Vector Search</button>
+    <button class="search-tag">AI Functions</button>
+    <button class="search-tag">JSON Relational Duality</button>
+    <button class="search-tag">ORA-04036</button>
+    <button class="search-tag">Installation Guide</button>
+    <button class="search-tag">Performance Tuning</button>
+    <button class="search-tag">RAG with Oracle</button>
+    <button class="search-tag">Free Edition</button>
+  </div>
+</div>
+
+<!-- SUPPORT -->
+<section id="support" class="reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Technical Support</div>
+      <h2>Find Your Answer</h2>
+    </div>
+    <a href="/support/" class="see-all">View All Articles →</a>
+  </div>
+
+  <div class="support-grid">
+    {% for article in collections.support | limit(6) %}
+    <a href="{{ article.url }}" class="support-card">
+      <div class="card-icon">📄</div>
+      <div class="card-tag">{{ article.data.tag }}</div>
+      <div class="card-title">{{ article.data.title }}</div>
+      <div class="card-desc">{{ article.data.description }}</div>
+      <div class="card-meta">
+        {% if article.data.difficulty %}
+          <span class="card-badge badge-{{ article.data.difficulty }}">{{ article.data.difficulty }}</span>
+        {% endif %}
+        {% if article.data.readTime %}
+          <span class="card-badge badge-info">{{ article.data.readTime }}</span>
+        {% endif %}
+      </div>
+    </a>
+    {% else %}
+    <p style="color: var(--text-muted); font-family: var(--mono); padding: 32px;">No support articles yet. Add Markdown files to src/support/</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" class="reveal" style="background: var(--surface);">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Blog & Insights</div>
+      <h2>Latest from the Field</h2>
+    </div>
+    <a href="/blog/" class="see-all">All Posts →</a>
+  </div>
+
+  <div class="blog-layout">
+    {% set featuredPost = collections.posts | first %}
+    {% if featuredPost %}
+    <a href="{{ featuredPost.url }}" class="blog-featured">
+      <div class="blog-featured-img">
+        <div class="blog-featured-img-inner">23ai</div>
+        <div class="version-badge">{{ featuredPost.data.tag }} · {{ featuredPost.date | readableDate }}</div>
+      </div>
+      <div class="blog-featured-body">
+        <div class="post-category">{{ featuredPost.data.tag }}</div>
+        <div class="post-title">{{ featuredPost.data.title }}</div>
+        <p class="post-excerpt">{{ featuredPost.data.description }}</p>
+        <div class="post-meta">
+          <span class="post-author">{{ featuredPost.data.author }}</span>
+          <span>{{ featuredPost.date | readableDate }}</span>
+          <span>{{ featuredPost.data.readTime }}</span>
+        </div>
+      </div>
+    </a>
+    {% endif %}
+
+    <div class="blog-list">
+      {% for post in collections.posts | limit(5) %}
+      <a href="{{ post.url }}" class="blog-list-item">
+        <div class="card-tag" style="font-size:10px; margin-bottom:6px;">{{ post.data.tag }}</div>
+        <div class="list-post-title">{{ post.data.title }}</div>
+        <div class="list-post-meta">
+          <span>{{ post.date | readableDate }}</span>
+          <span>{{ post.data.readTime }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- VERSIONS -->
+<section id="versions" class="reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">// Release History</div>
+      <h2>Version Timeline</h2>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot current"></div>
+        <div class="timeline-label">Current Release · 2024</div>
+        <div class="timeline-version">Oracle 23ai <span class="current-tag">CURRENT</span></div>
+        <p style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px;">AI-native release featuring native vector storage, AI Functions, JSON Duality Views, and schema-level privileges.</p>
+        <div class="timeline-features">
+          <span class="feature-chip highlight">VECTOR type</span>
+          <span class="feature-chip highlight">AI Functions</span>
+          <span class="feature-chip highlight">JSON Duality</span>
+          <span class="feature-chip">Schema Privileges</span>
+          <span class="feature-chip">SQL Domains</span>
+          <span class="feature-chip">True Cache</span>
+          <span class="feature-chip">Property Graph</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-label">LTS Release · 2019</div>
+        <div class="timeline-version">Oracle 19c</div>
+        <p style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px;">Long-term support release. Stable, widely deployed, supported through extended support.</p>
+        <div class="timeline-features">
+          <span class="feature-chip">Automatic Indexing</span>
+          <span class="feature-chip">Real-Time Stats</span>
+          <span class="feature-chip">JSON Enhancement</span>
+          <span class="feature-chip">Multitenant</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-label">LTS Release · 2017</div>
+        <div class="timeline-version">Oracle 18c / 12c</div>
+        <div class="timeline-features">
+          <span class="feature-chip">Multitenant CDB</span>
+          <span class="feature-chip">In-Memory</span>
+          <span class="feature-chip">Approximate Query</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 36px;">
+        <div class="card-tag" style="margin-bottom: 16px;">23ai Key Numbers</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">3000+</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">New Features</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">∞</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Vector Dimensions</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">5</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Distance Metrics</div>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); font-size: 42px; color: var(--red-bright); line-height: 1;">Free</div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">Developer Edition</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Search tags
+  document.querySelectorAll('.search-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      document.getElementById('hero-search').value = tag.textContent;
+    });
+  });
+
+  // Trigger Pagefind search overlay
+  function triggerSearch() {
+    const val = document.getElementById('hero-search').value;
+    document.getElementById('search-overlay').classList.remove('hidden');
+    setTimeout(() => {
+      const input = document.querySelector('.pagefind-ui__search-input');
+      if (input) { input.value = val; input.dispatchEvent(new Event('input')); }
+    }, 100);
+  }
+
+  document.getElementById('hero-search').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') triggerSearch();
+  });
+</script>

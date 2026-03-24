@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Privileges: The End of GRANT-ALL Anti-Patterns — Oracle 23ai Help Center</title>
+<meta name="description" content="Oracle 23ai introduces schema-level privileges — a long-awaited middle tier between granting access to a single object and granting access to everything. Here&#39;s why it matters, how it works, and how to migrate away from the GRANT ANY anti-pattern.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/articles.css">
+
+<!-- Pagefind search UI (built after `npm run build:search`) -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/support/">Support</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/install/">Install</a></li>
+    <li><a href="/#versions">Versions</a></li>
+    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>�</span>
+    <a href="/blog/">Blog</a>
+    <span>�</span>
+    <span>Schema Privileges: The End of GRANT-ALL Anti-Patterns</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Security</span>
+        </div>
+        <h1 class="article-title">Schema Privileges: The End of GRANT-ALL Anti-Patterns</h1>
+        
+          <p class="article-description">Oracle 23ai introduces schema-level privileges — a long-awaited middle tier between granting access to a single object and granting access to everything. Here&#39;s why it matters, how it works, and how to migrate away from the GRANT ANY anti-pattern.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>January 30, 2025</span>
+          <span>10 min</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>The Problem with Pre-23ai Privilege Management</h2>
+<p>Before Oracle 23ai, DBAs managing application access had exactly two options when a service account needed to query a schema:</p>
+<p><strong>Option 1 — Grant on each individual object</strong></p>
+<pre><code class="language-sql">GRANT SELECT ON hr.employees    TO app_user;
+GRANT SELECT ON hr.departments  TO app_user;
+GRANT SELECT ON hr.jobs         TO app_user;
+GRANT SELECT ON hr.locations    TO app_user;
+-- ... repeat for every table and view in the schema
+</code></pre>
+<p>This is correct from a security standpoint but becomes a maintenance nightmare the moment a new table is added. Every new object requires a new grant. Scripts drift. Service accounts end up missing access to new tables and applications break in production.</p>
+<p><strong>Option 2 — Grant ANY privilege</strong></p>
+<pre><code class="language-sql">GRANT SELECT ANY TABLE TO app_user;
+</code></pre>
+<p>One line. Problem solved — until it isn't. This grants the service account read access to <strong>every table in the entire database</strong>, including tables in SYS, SYSTEM, and every other schema. If this user account is compromised, your entire database can be compromised. It also violates the principle of least privilege and most compliance frameworks (PCI-DSS, SOC 2, ISO 27001) outright.</p>
+<p>Object privileges have always worked on two tiers only — you get access to a single object, or you get access to every object. However, in the real world of database usage, we generally work in three tiers. Some people need access to objects on an individual basis, some people need access to all objects, but there is a common third tier that sits between these two: the schema.</p>
+<p>Oracle 23ai finally closes this gap.</p>
+<hr>
+<h2>Schema Privileges — The Missing Middle Tier</h2>
+<p>Oracle Database 23ai introduces a new schema-level grant. If you <code>GRANT SELECT ANY TABLE ON SCHEMA HR TO BOB</code>, that user can see all the tables and views in the HR schema — and only in the HR schema.</p>
+<pre><code class="language-sql">-- Before 23ai: dangerous broad grant
+GRANT SELECT ANY TABLE TO app_user;
+
+-- Oracle 23ai: scoped to one schema only
+GRANT SELECT ANY TABLE ON SCHEMA hr TO app_user;
+</code></pre>
+<p>Same <code>ANY</code> keyword — but with <code>ON SCHEMA hr</code> appended, the privilege is now scoped entirely to the <code>hr</code> schema. The user cannot access any other schema.</p>
+<h3>Future Objects Are Covered Automatically</h3>
+<p>If a new table is added to the schema, they instantly have access to that new table. No extra management is needed, and you continue to support a least-privilege security model with appropriate separation of duties.</p>
+<pre><code class="language-sql">-- Grant schema privilege once
+GRANT SELECT ANY TABLE ON SCHEMA hr TO app_user;
+
+-- Create a new table months later
+CREATE TABLE hr.salary_bands (
+  band_id    NUMBER PRIMARY KEY,
+  band_name  VARCHAR2(50),
+  min_salary NUMBER,
+  max_salary NUMBER
+);
+
+-- app_user can already query it — no additional grant needed
+SELECT * FROM hr.salary_bands; -- works immediately
+</code></pre>
+<p>This eliminates the entire class of &quot;new table, forgot to grant&quot; production incidents.</p>
+<hr>
+<h2>Supported Privilege Types</h2>
+<p>Many system privileges can be scoped to a schema using <code>ON SCHEMA</code>. The most commonly used ones are:</p>
+<table>
+<thead>
+<tr>
+<th>Privilege</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SELECT ANY TABLE</code></td>
+<td>Read access to all tables and views in the schema</td>
+</tr>
+<tr>
+<td><code>INSERT ANY TABLE</code></td>
+<td>Insert rows into any table in the schema</td>
+</tr>
+<tr>
+<td><code>UPDATE ANY TABLE</code></td>
+<td>Update rows in any table in the schema</td>
+</tr>
+<tr>
+<td><code>DELETE ANY TABLE</code></td>
+<td>Delete rows from any table in the schema</td>
+</tr>
+<tr>
+<td><code>EXECUTE ANY PROCEDURE</code></td>
+<td>Execute all procedures and functions in the schema</td>
+</tr>
+<tr>
+<td><code>CREATE ANY TABLE</code></td>
+<td>Create tables within the schema</td>
+</tr>
+<tr>
+<td><code>ALTER ANY TABLE</code></td>
+<td>Alter table definitions in the schema</td>
+</tr>
+<tr>
+<td><code>DROP ANY TABLE</code></td>
+<td>Drop tables in the schema</td>
+</tr>
+<tr>
+<td><code>SELECT ANY SEQUENCE</code></td>
+<td>Read sequences in the schema</td>
+</tr>
+<tr>
+<td><code>READ ANY TABLE</code></td>
+<td>Read-only access (alternative to SELECT for some contexts)</td>
+</tr>
+</tbody>
+</table>
+<p>You can combine multiple privileges in a single grant:</p>
+<pre><code class="language-sql">-- Grant full DML access on the hr schema
+GRANT SELECT ANY TABLE,
+      INSERT ANY TABLE,
+      UPDATE ANY TABLE,
+      DELETE ANY TABLE
+ON SCHEMA hr TO app_user;
+</code></pre>
+<h3>What is NOT covered by SELECT ANY TABLE</h3>
+<p>Testing by the community has confirmed one important nuance: <code>SELECT ANY TABLE ON SCHEMA</code> includes views but not sequences. Selecting from a sequence requires a separate <code>SELECT ANY SEQUENCE ON SCHEMA</code> grant.</p>
+<pre><code class="language-sql">-- Works — tables and views are included
+SELECT * FROM hr.employees;
+SELECT * FROM hr.emp_details_view;
+
+-- Fails — sequences need a separate grant
+SELECT hr.departments_seq.nextval FROM dual;
+-- ORA-41900: missing READ privilege on &quot;HR&quot;.&quot;DEPARTMENTS_SEQ&quot;
+
+-- Fix
+GRANT SELECT ANY SEQUENCE ON SCHEMA hr TO app_user;
+</code></pre>
+<h3>Privileges that cannot be schema-scoped</h3>
+<p>Not all system privileges support the <code>ON SCHEMA</code> clause. Privileges that apply to the database as a whole (such as <code>CREATE SESSION</code>, <code>CREATE TABLESPACE</code>, <code>ALTER DATABASE</code>) cannot be scoped to a schema — they are database-wide by nature.</p>
+<hr>
+<h2>Granting Schema Privileges to Roles</h2>
+<p>Schema privileges can be granted to roles, not just users. This fits cleanly into an existing role-based access control model:</p>
+<pre><code class="language-sql">-- Create a read-only role for the HR schema
+CREATE ROLE hr_readonly;
+GRANT SELECT ANY TABLE ON SCHEMA hr TO hr_readonly;
+GRANT SELECT ANY SEQUENCE ON SCHEMA hr TO hr_readonly;
+
+-- Grant the role to users who need read access
+GRANT hr_readonly TO alice;
+GRANT hr_readonly TO reporting_service;
+
+-- Grant the role to an application service account
+GRANT hr_readonly TO hr_app_user;
+</code></pre>
+<p>Now when a new table is added to <code>hr</code>, every user and service account holding <code>hr_readonly</code> automatically gains access — without touching any grant statements.</p>
+<hr>
+<h2>The WITH ADMIN OPTION</h2>
+<p>You can grant schema privileges with <code>ADMIN OPTION</code>, which allows the grantee to further grant the privilege to others.</p>
+<pre><code class="language-sql">-- Grant with admin option
+GRANT SELECT ANY TABLE ON SCHEMA hr TO team_lead WITH ADMIN OPTION;
+
+-- team_lead can now grant to others
+GRANT SELECT ANY TABLE ON SCHEMA hr TO junior_dev;
+</code></pre>
+<p>Use <code>WITH ADMIN OPTION</code> carefully — it creates a chain of trust that can be hard to audit. Reserve it for schema owners and senior DBAs.</p>
+<hr>
+<h2>Who Can Grant Schema Privileges?</h2>
+<p>Users can grant schema-level privileges on their own schema without having any special privileges. To grant schema-level privileges on someone else's schema, you need either the <code>GRANT ANY SCHEMA</code> or <code>GRANT ANY PRIVILEGE</code> system privilege.</p>
+<pre><code class="language-sql">-- Schema owner can grant on their own schema freely
+CONN hr_owner/password@FREEPDB1
+GRANT SELECT ANY TABLE ON SCHEMA hr TO app_user; -- works
+
+-- DBA granting on another user's schema
+CONN / AS SYSDBA
+GRANT SELECT ANY TABLE ON SCHEMA hr TO app_user; -- also works
+</code></pre>
+<hr>
+<h2>Querying Schema Privilege Grants</h2>
+<p>Schema privilege grants do not show up in the well-known dictionary views <code>DBA_SYS_PRIVS</code>, <code>DBA_TAB_PRIVS</code>, or <code>DBA_ROLE_PRIVS</code>. Oracle 23ai introduces dedicated views for schema privileges:</p>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DBA_SCHEMA_PRIVS</code></td>
+<td>All schema privilege grants in the database</td>
+</tr>
+<tr>
+<td><code>USER_SCHEMA_PRIVS</code></td>
+<td>Schema privileges granted to the current user</td>
+</tr>
+<tr>
+<td><code>ROLE_SCHEMA_PRIVS</code></td>
+<td>Schema privileges granted to roles</td>
+</tr>
+<tr>
+<td><code>SESSION_SCHEMA_PRIVS</code></td>
+<td>Schema privileges active in the current session</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql">-- See all schema privilege grants
+SELECT grantee, privilege, schema, admin_option
+FROM DBA_SCHEMA_PRIVS
+ORDER BY schema, grantee;
+
+-- Check what a specific user has
+SELECT privilege, schema
+FROM DBA_SCHEMA_PRIVS
+WHERE grantee = 'APP_USER';
+
+-- Check what roles carry schema privileges
+SELECT role, privilege, schema
+FROM ROLE_SCHEMA_PRIVS;
+</code></pre>
+<hr>
+<h2>Revoking Schema Privileges</h2>
+<p>Revocation is as clean as the grant:</p>
+<pre><code class="language-sql">-- Revoke a single privilege
+REVOKE SELECT ANY TABLE ON SCHEMA hr FROM app_user;
+
+-- Revoke multiple privileges
+REVOKE INSERT ANY TABLE, UPDATE ANY TABLE, DELETE ANY TABLE
+ON SCHEMA hr FROM app_user;
+
+-- Revoke from a role
+REVOKE SELECT ANY TABLE ON SCHEMA hr FROM hr_readonly;
+</code></pre>
+<p>The schema-level privilege is not additive/subtractive — revoking an individual object privilege does not remove the schema-level privilege. The schema privilege remains in place and the user retains access through it.</p>
+<p>This means if you want to block a user from a specific table inside a schema they have schema-level access to, revoking the individual object grant is not enough. You must revoke the schema privilege and re-grant individual object privileges, or use Virtual Private Database (VPD) policies to restrict row-level access.</p>
+<hr>
+<h2>Migrating from Legacy GRANT ANY</h2>
+<p>If your environment currently uses <code>GRANT SELECT ANY TABLE</code> without a schema scope, here is a safe migration path:</p>
+<h3>Step 1 — Audit current ANY grants</h3>
+<pre><code class="language-sql">-- Find all users with unscoped ANY privileges
+SELECT grantee, privilege
+FROM DBA_SYS_PRIVS
+WHERE privilege LIKE '%ANY TABLE%'
+  AND grantee NOT IN ('SYS', 'SYSTEM', 'DBA')
+ORDER BY grantee;
+</code></pre>
+<h3>Step 2 — Identify which schemas each grantee actually uses</h3>
+<pre><code class="language-sql">-- Check actual table access over the past 30 days (requires auditing enabled)
+SELECT db_user, obj_schema, COUNT(*) AS access_count
+FROM DBA_AUDIT_TRAIL
+WHERE action_name = 'SELECT'
+  AND timestamp &gt; SYSDATE - 30
+GROUP BY db_user, obj_schema
+ORDER BY db_user, access_count DESC;
+</code></pre>
+<h3>Step 3 — Replace broad grants with schema-scoped grants</h3>
+<pre><code class="language-sql">-- Revoke the dangerous broad grant
+REVOKE SELECT ANY TABLE FROM app_user;
+
+-- Replace with schema-scoped grants for each schema actually needed
+GRANT SELECT ANY TABLE ON SCHEMA hr     TO app_user;
+GRANT SELECT ANY TABLE ON SCHEMA orders TO app_user;
+</code></pre>
+<h3>Step 4 — Verify nothing broke</h3>
+<pre><code class="language-sql">-- Confirm the new grants are in place
+SELECT grantee, privilege, schema
+FROM DBA_SCHEMA_PRIVS
+WHERE grantee = 'APP_USER';
+
+-- Confirm the old broad grant is gone
+SELECT grantee, privilege
+FROM DBA_SYS_PRIVS
+WHERE grantee = 'APP_USER'
+  AND privilege LIKE '%ANY%';
+</code></pre>
+<hr>
+<h2>Limitations to Know</h2>
+<p>Schema privileges cannot be granted for the SYS schema. Attempting to do so returns an error — which is intentional and correct.</p>
+<pre><code class="language-sql">-- This will fail — SYS schema cannot be used with schema privileges
+GRANT SELECT ANY TABLE ON SCHEMA SYS TO app_user;
+-- ORA-65155: operation not allowed on SYS schema
+</code></pre>
+<p>If your application needs access to SYS-owned views (such as <code>V$SESSION</code> or <code>DBA_TABLES</code>), grant those individually as you always have:</p>
+<pre><code class="language-sql">GRANT SELECT ON SYS.V_$SESSION TO app_user;
+GRANT SELECT ON SYS.DBA_TABLES  TO app_user;
+</code></pre>
+<p>Also note that if a user needs access to only a subset of tables in a schema, schema-level privileges are not appropriate — the user will gain access to the whole schema. In that case, continue using individual object grants or a curated role.</p>
+<hr>
+<h2>Summary</h2>
+<p>Schema privileges in Oracle 23ai fill a decade-long gap in Oracle's privilege model. The before and after is stark:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Before 23ai</th>
+<th>Oracle 23ai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grant read access to all tables in <code>hr</code></td>
+<td>1 grant per table + maintain on every new table</td>
+<td><code>GRANT SELECT ANY TABLE ON SCHEMA hr TO user</code></td>
+</tr>
+<tr>
+<td>New table added to <code>hr</code></td>
+<td>Manual grant required</td>
+<td>Automatic — no action needed</td>
+</tr>
+<tr>
+<td>Scope a system privilege to one schema</td>
+<td>Not possible</td>
+<td><code>ON SCHEMA schema_name</code> clause</td>
+</tr>
+<tr>
+<td>Avoid <code>GRANT ANY</code> security risk</td>
+<td>Choose: manual or insecure</td>
+<td>Schema-scoped — least privilege without maintenance overhead</td>
+</tr>
+<tr>
+<td>Audit schema privilege grants</td>
+<td><code>DBA_SYS_PRIVS</code> (flat list)</td>
+<td><code>DBA_SCHEMA_PRIVS</code> (schema-aware)</td>
+</tr>
+</tbody>
+</table>
+<p>For any Oracle 23ai environment running multi-schema applications with service accounts, replacing <code>GRANT ANY</code> with schema-scoped grants should be one of the first security improvements you make.</p>
+
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/install/">Error Reference</a></li>
+        <li><a href="/install/">AI Features</a></li>
+        <li><a href="/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/blog/">All Posts</a></li>
+        <li><a href="/blog/">Deep Dives</a></li>
+        <li><a href="/blog/">Tutorials</a></li>
+        <li><a href="/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+---
+layout: base.njk
+---
+
+<article class="article-layout" data-pagefind-body>
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    <a href="/blog/">Blog</a>
+    <span>›</span>
+    <span>{{ title }}</span>
+  </nav>
+
+  <div class="article-container">
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">{{ tag }}</span>
+        </div>
+        <h1 class="article-title">{{ title }}</h1>
+        {% if description %}
+          <p class="article-description">{{ description }}</p>
+        {% endif %}
+        <div class="article-meta-bar">
+          {% if author %}<span>By {{ author }}</span>{% endif %}
+          {% if date %}<span>{{ date | readableDate }}</span>{% endif %}
+          {% if readTime %}<span>{{ readTime }}</span>{% endif %}
+        </div>
+      </header>
+
+      <div class="article-body">
+        {{ content | safe }}
+      </div>
+    </div>
+
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+  </div>
+</article>
+
+<script>
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+  }
+</script>

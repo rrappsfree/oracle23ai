@@ -1,0 +1,109 @@
+---
+layout: base.njk
+---
+
+<article class="article-layout" data-pagefind-body>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    {% if category == "support" %}
+      <a href="/support/">Support</a>
+    {% else %}
+      <a href="/blog/">Blog</a>
+    {% endif %}
+    <span>›</span>
+    <span>{{ title }}</span>
+  </nav>
+
+  <div class="article-container">
+
+    <!-- Main content -->
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">{{ tag or category }}</span>
+          {% if difficulty %}
+            <span class="article-difficulty difficulty-{{ difficulty }}">{{ difficulty }}</span>
+          {% endif %}
+        </div>
+        <h1 class="article-title">{{ title }}</h1>
+        {% if description %}
+          <p class="article-description">{{ description }}</p>
+        {% endif %}
+        <div class="article-meta-bar">
+          {% if author %}<span>By {{ author }}</span>{% endif %}
+          {% if date %}<span>{{ date | readableDate }}</span>{% endif %}
+          {% if readTime %}<span>{{ readTime }} read</span>{% endif %}
+        </div>
+      </header>
+
+      <div class="article-body">
+        {{ content | safe }}
+      </div>
+
+      <!-- Related articles -->
+      {% if related %}
+      <div class="related-articles">
+        <div class="related-title">Related Articles</div>
+        <div class="related-grid">
+          {% for slug in related %}
+            {% set relatedPost = collections.support | selectattr("fileSlug", slug) %}
+            <a href="/support/{{ slug }}/" class="related-card">
+              <div class="related-card-title">{{ slug | replace("-", " ") | title }}</div>
+              <div class="related-card-arrow">→</div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar TOC -->
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+
+      <div class="sidebar-cta">
+        <div class="sidebar-cta-title">Need more help?</div>
+        <p>Can't find what you're looking for? Open a support ticket and our team will help.</p>
+        <a href="#" class="btn-primary" style="display:block; text-align:center; margin-top:16px;">Open a Ticket</a>
+      </div>
+    </aside>
+
+  </div>
+</article>
+
+<script>
+  // Auto-generate table of contents from h2/h3 headings
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+
+    // Highlight active heading on scroll
+    const tocLinks = toc.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(l => l.classList.remove('active'));
+          const active = toc.querySelector(`a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(h => observer.observe(h));
+  } else if (toc) {
+    toc.closest('.toc-box').style.display = 'none';
+  }
+</script>

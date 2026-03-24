@@ -1,0 +1,30 @@
+---
+layout: base.njk
+title: Technical Support
+permalink: /support/index.html
+---
+
+<div class="page-header">
+  <div class="section-label">// Technical Support</div>
+  <h1>Find Your Answer</h1>
+</div>
+
+<div class="support-index-grid">
+  {% for article in collections.support %}
+  <a href="{{ article.url }}" class="support-index-card">
+    <div class="card-tag">{{ article.data.tag }}</div>
+    <h2 class="card-title">{{ article.data.title }}</h2>
+    <p class="card-desc">{{ article.data.description }}</p>
+    <div class="card-meta">
+      {% if article.data.difficulty %}
+        <span class="card-badge badge-{{ article.data.difficulty }}">{{ article.data.difficulty }}</span>
+      {% endif %}
+      {% if article.data.readTime %}
+        <span class="card-badge badge-info">{{ article.data.readTime }}</span>
+      {% endif %}
+    </div>
+  </a>
+  {% else %}
+  <p style="color: var(--text-muted); font-family: var(--mono);">No articles yet.</p>
+  {% endfor %}
+</div>
