@@ -3,15 +3,19 @@ layout: base.njk
 ---
 
 <article class="article-layout" data-pagefind-body>
-  <nav class="breadcrumb">
-    <a href="/">Home</a>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ '/' | url }}">Home</a>
     <span>›</span>
-    <a href="/blog/">Blog</a>
+    <a href="{{ '/blog/' | url }}">Blog</a>
     <span>›</span>
     <span>{{ title }}</span>
   </nav>
 
   <div class="article-container">
+
+    <!-- Main content -->
     <div class="article-main">
       <header class="article-header">
         <div class="article-meta-top">
@@ -24,7 +28,7 @@ layout: base.njk
         <div class="article-meta-bar">
           {% if author %}<span>By {{ author }}</span>{% endif %}
           {% if date %}<span>{{ date | readableDate }}</span>{% endif %}
-          {% if readTime %}<span>{{ readTime }}</span>{% endif %}
+          {% if readTime %}<span>{{ readTime }} read</span>{% endif %}
         </div>
       </header>
 
@@ -33,16 +37,19 @@ layout: base.njk
       </div>
     </div>
 
+    <!-- Sidebar TOC -->
     <aside class="article-sidebar">
       <div class="toc-box">
         <div class="toc-title">On this page</div>
         <nav class="toc-nav" id="toc"></nav>
       </div>
     </aside>
+
   </div>
 </article>
 
 <script>
+  // Auto-generate table of contents from h2/h3 headings
   const headings = document.querySelectorAll('.article-body h2, .article-body h3');
   const toc = document.getElementById('toc');
   if (headings.length > 0 && toc) {
@@ -54,5 +61,20 @@ layout: base.njk
       a.className = 'toc-link toc-' + h.tagName.toLowerCase();
       toc.appendChild(a);
     });
+
+    // Highlight active heading on scroll
+    const tocLinks = toc.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(l => l.classList.remove('active'));
+          const active = toc.querySelector(`a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(h => observer.observe(h));
+  } else if (toc) {
+    toc.closest('.toc-box').style.display = 'none';
   }
 </script>

@@ -11,7 +11,7 @@ permalink: /blog/index.html
 
 <div class="blog-index-grid">
   {% for post in collections.posts %}
-  <a href="{{ post.url }}" class="blog-card">
+  <a href="{{ post.url | url }}" class="blog-card">
     <div class="blog-card-tag">{{ post.data.tag }}</div>
     <h2 class="blog-card-title">{{ post.data.title }}</h2>
     <p class="blog-card-desc">{{ post.data.description }}</p>
