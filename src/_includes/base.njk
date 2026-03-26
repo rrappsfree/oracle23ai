@@ -8,11 +8,10 @@
 <title>{% if title %}{{ title }} — {% endif %}Oracle 23ai Help Center</title>
 <meta name="description" content="{{ description or 'Technical support, guides, and blog for Oracle Database 23ai.' }}">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ pfx }}/assets/css/main.css">
-<link rel="stylesheet" href="{{ pfx }}/assets/css/articles.css">
-
+<link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
+<link rel="stylesheet" href="{{ '/assets/css/articles.css' | url }}">
+<link href="{{ '/pagefind/pagefind-ui.css' | url }}" rel="stylesheet" onerror="this.remove()">
 <!-- Pagefind search UI -->
-<link href="{{ pfx }}/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
 </head>
 <body>
 
@@ -22,11 +21,12 @@
     <div class="nav-logo-text">Oracle <span>23ai</span></div>
   </a>
   <ul class="nav-links">
-    <li><a href="{{ pfx }}/support/">Support</a></li>
-    <li><a href="{{ pfx }}/blog/">Blog</a></li>
-    <li><a href="{{ pfx }}/install/">Install</a></li>
-    <li><a href="{{ pfx }}/#versions">Versions</a></li>
-    <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+<a href="{{ '/' | url }}" class="nav-logo">
+  ...
+  <li><a href="{{ '/support/' | url }}">Support</a></li>
+  <li><a href="{{ '/blog/' | url }}">Blog</a></li>
+  <li><a href="{{ '/install/' | url }}">Install</a></li>
+  <li><a href="{{ '/#versions' | url }}">Versions</a></li>   <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
   </ul>
 </nav>
 
