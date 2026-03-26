@@ -11,7 +11,7 @@ permalink: /support/index.html
 
 <div class="support-index-grid">
   {% for article in collections.support %}
-  <a href="{{ article.url }}" class="support-index-card">
+  <a href="{{ article.url | url }}" class="support-index-card">
     <div class="card-tag">{{ article.data.tag }}</div>
     <h2 class="card-title">{{ article.data.title }}</h2>
     <p class="card-desc">{{ article.data.description }}</p>

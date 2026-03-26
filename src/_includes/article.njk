@@ -101,3 +101,18 @@ layout: base.njk
     toc.closest('.toc-box').style.display = 'none';
   }
 </script>
+{# This is a modified version of the file #}
+
+{% set links = [] %}
+
+{% for article in articles %}
+    {% if article.url %}
+        {% set url = article.url | pathPrefix %}
+        {% set links = links + [url] %}
+    {% endif %}
+{% endfor %}
+
+{# Use {{ pfx }} for rendering links instead of | url filters #}
+{% for link in links %}
+    <a href="{{ pfx }}{{ link }}">{{ link }}</a>
+{% endfor %}
