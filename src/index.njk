@@ -12,8 +12,8 @@ permalink: /index.html
     <h1>Your AI-Native<br>Database <em>Guide</em></h1>
     <p class="hero-desc">Comprehensive technical support, tutorials, and insights for Oracle Database 23ai — the first AI-native database from Oracle.</p>
     <div class="hero-actions">
-      <a href="/support/" class="btn-primary">Browse Support</a>
-      <a href="/blog/" class="btn-ghost">Read the Blog</a>
+      <a href="{{'/support/' | url }}" class="btn-primary">Browse Support</a>
+      <a href="{{ '/blog/' | url }}" class="btn-ghost">Read the Blog</a>
     </div>
   </div>
   <div class="hero-right">
@@ -90,7 +90,7 @@ permalink: /index.html
       <div class="section-label">// Technical Support</div>
       <h2>Find Your Answer</h2>
     </div>
-    <a href="/support/" class="see-all">View All Articles →</a>
+    <a href="{{'/support/' | url }}" class="see-all">View All Articles →</a>
   </div>
 
   <div class="support-grid">
@@ -98,7 +98,7 @@ permalink: /index.html
     <!-- Pinned: New Features article -->
     {% for post in collections.posts %}
       {% if post.data.featured %}
-      <a href="{{ post.url }}" class="support-card">
+      <a href="{{ post.url | url }}" class="support-card">
         <div class="card-icon">🚀</div>
         <div class="card-tag">New Features</div>
         <div class="card-title">{{ post.data.title }}</div>
@@ -112,7 +112,7 @@ permalink: /index.html
     {% endfor %}
     
     <!-- Pinned: 19c vs 23ai differences -->
-    <a href="/posts/oracle-19c-vs-23ai-differences/" class="support-card">
+    <a href="{{'/posts/oracle-19c-vs-23ai-differences/' | url}}" class="support-card">
       <div class="card-icon">🔄</div>
       <div class="card-tag">Comparison</div>
       <div class="card-title">Key Differences Between Oracle 19c and 23ai</div>
@@ -126,7 +126,7 @@ permalink: /index.html
     
   
     {% for article in collections.support | limit(6) %}
-    <a href="{{ article.url }}" class="support-card">
+    <a href="{{ article.url | url }}" class="support-card">
       <div class="card-icon">📄</div>
       <div class="card-tag">{{ article.data.tag }}</div>
       <div class="card-title">{{ article.data.title }}</div>
@@ -153,14 +153,14 @@ permalink: /index.html
       <div class="section-label">// Blog & Insights</div>
       <h2>Latest from the Field</h2>
     </div>
-    <a href="/blog/" class="see-all">All Posts →</a>
+    <a href="{{'/blog/' | url }}" class="see-all">All Posts →</a>
   </div>
   
   <div class="blog-layout">
     {% set featuredPost = collections.posts | selectattr("data.featured") | first %}
     {% if not featuredPost %}{% set featuredPost = collections.posts | first %}{% endif %}
     {% if featuredPost %}
-    <a href="{{ featuredPost.url }}" class="blog-featured">
+    <a href="{{ featuredPost.url | url }}" class="blog-featured">
       <div class="blog-featured-img">
         <div class="blog-featured-img-inner">23ai</div>
         <div class="version-badge">{{ featuredPost.data.tag }} · {{ featuredPost.date | readableDate }}</div>
@@ -180,7 +180,7 @@ permalink: /index.html
 
     <div class="blog-list">
       {% for post in collections.posts | limit(5) %}
-      <a href="{{ post.url }}" class="blog-list-item">
+      <a href="{{ post.url | url }}" class="blog-list-item">
         <div class="card-tag" style="font-size:10px; margin-bottom:6px;">{{ post.data.tag }}</div>
         <div class="list-post-title">{{ post.data.title }}</div>
         <div class="list-post-meta">
