@@ -1,7 +1,7 @@
 [build]
-  command = "npm install && npm run build && npx pagefind --site _site"
+  command = "npm ci && npm run build && npx pagefind --site _site"
   publish = "_site"
 
 [build.environment]
   NODE_VERSION = "20"
-
+  NPM_VERSION= "10"
