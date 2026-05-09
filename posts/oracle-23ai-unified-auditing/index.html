@@ -1,0 +1,723 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle 23ai Unified Auditing: A Complete Guide — Oracle 23ai Help Center</title>
+<meta name="description" content="A comprehensive guide to Oracle Database 23ai Unified Auditing — covering architecture, mandatory audits, predefined policies, conditional auditing, column-level auditing, PII protection, audit trail management, compliance frameworks, and migration from traditional auditing.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/oracle23ai/assets/css/main.css">
+<link rel="stylesheet" href="/oracle23ai/assets/css/articles.css">
+<link href="/oracle23ai/pagefind/pagefind-ui.css" rel="stylesheet" onerror="this.remove()">
+<!-- Pagefind search UI -->
+</head>
+<body>
+
+<nav>
+  <a href="" class="nav-logo">
+    <div class="nav-logo-icon">O</div>
+    <div class="nav-logo-text">Oracle <span>23ai</span></div>
+  </a>
+  <ul class="nav-links">
+<a href="/oracle23ai/" class="nav-logo">
+  ...
+  <li><a href="/oracle23ai/support/">Support</a></li>
+  <li><a href="/oracle23ai/blog/">Blog</a></li>
+  <li><a href="/oracle23ai/install/">Install</a></li>
+  <li><a href="/oracle23ai/#versions">Versions</a></li>   <li><a href="#" id="search-trigger" class="nav-search">⌕ Search</a></li>
+  </ul>
+</nav>
+
+<!-- Rest of the template with all links using  -->
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay hidden">
+  <div class="search-overlay-inner">
+    <div id="search-widget"></div>
+    <button class="search-close" onclick="closeSearch()">✕ Close</button>
+  </div>
+</div>
+
+<main>
+  
+<article class="article-layout" data-pagefind-body>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/oracle23ai/">Home</a>
+    <span>�</span>
+    <a href="/oracle23ai/blog/">Blog</a>
+    <span>�</span>
+    <span>Oracle 23ai Unified Auditing: A Complete Guide</span>
+  </nav>
+
+  <div class="article-container">
+
+    <!-- Main content -->
+    <div class="article-main">
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="article-tag">Security</span>
+        </div>
+        <h1 class="article-title">Oracle 23ai Unified Auditing: A Complete Guide</h1>
+        
+          <p class="article-description">A comprehensive guide to Oracle Database 23ai Unified Auditing — covering architecture, mandatory audits, predefined policies, conditional auditing, column-level auditing, PII protection, audit trail management, compliance frameworks, and migration from traditional auditing.</p>
+        
+        <div class="article-meta-bar">
+          <span>By Oracle 23ai Help Team</span>
+          <span>March 25, 2025</span>
+          <span>18 min read</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+        <h2>What Is Unified Auditing?</h2>
+<p>Oracle Database provides the industry's most comprehensive auditing capability with Unified Auditing — a single framework for capturing the most accurate record of any database activity. Introduced in Oracle Database 12c and significantly enhanced in 23ai, it consolidates all audit records into one central repository called the Unified Audit Trail.</p>
+<p>In older Oracle versions, audit records were scattered across multiple tables, operating system files, and XML files — making analysis complex and management painful. Unified Auditing eliminates that complexity by providing a single place for all audit data, regardless of the source.</p>
+<h3>Key Benefits</h3>
+<table>
+<thead>
+<tr>
+<th>Benefit</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single audit trail</td>
+<td>All audit records in one place — <code>UNIFIED_AUDIT_TRAIL</code></td>
+</tr>
+<tr>
+<td>Tamper-resistant</td>
+<td>Stored in <code>AUDSYS</code> schema — no one can log in to it directly</td>
+</tr>
+<tr>
+<td>Lower overhead</td>
+<td>Optimized for large audit trails with minimal performance impact</td>
+</tr>
+<tr>
+<td>Policy-based</td>
+<td>Named policies created once, applied to multiple users and roles</td>
+</tr>
+<tr>
+<td>Compliance-ready</td>
+<td>Built-in support for GDPR, HIPAA, SOX, PCI-DSS, and STIG</td>
+</tr>
+<tr>
+<td>PDB autonomy</td>
+<td>Fully independent audit policies at the PDB level</td>
+</tr>
+</tbody>
+</table>
+<h3>What Is New in Oracle 23ai</h3>
+<p>Oracle 23ai introduces several significant enhancements over previous versions:</p>
+<ul>
+<li><strong>Column-level auditing</strong> — audit access to specific columns in tables and views, not just the whole table</li>
+<li><strong>Conditional auditing with configurable conditions</strong> — create precise, context-aware policies that reduce noise</li>
+<li><strong>Application context capture</strong> — extend the audit trail to include custom application attributes</li>
+<li><strong>Native JSON indexing</strong> — faster searches on large audit trails</li>
+<li><strong>AI-powered anomaly detection</strong> — analyze audit data to spot suspicious patterns</li>
+<li><strong>Simplified policy management</strong> — create, enable, or disable audit policies with a single command</li>
+</ul>
+<hr>
+<h2>Traditional Auditing Is Gone in 23ai</h2>
+<p>Traditional auditing is no longer supported in Oracle Database 23ai. If you create a new Oracle Database 23ai, the traditional audit does not exist.</p>
+<p>If you upgrade a database that has traditional audit settings, the upgraded database will continue to apply those audit settings and capture them in the older-version audit trail until you disable those audit settings with a NOAUDIT command. You will not be able to create new traditional audit settings or modify the existing ones.</p>
+<p>Oracle recommends that you plan your transition to Unified Auditing before you plan an upgrade to Database 23ai.</p>
+<h3>Migration Path from Traditional Auditing</h3>
+<pre><code class="language-sql">-- Step 1: Define equivalent Unified Audit policies
+-- for any custom traditional audit settings
+
+-- Step 2: Disable all traditional audit settings
+NOAUDIT ALL;
+NOAUDIT ALL PRIVILEGES;
+NOAUDIT ALL ON hr.employees;
+
+-- Step 3: Update initialization parameters
+ALTER SYSTEM SET AUDIT_TRAIL = NONE SCOPE = SPFILE;
+ALTER SYSTEM SET AUDIT_SYS_OPERATIONS = FALSE SCOPE = SPFILE;
+
+-- Step 4: Restart the database
+SHUTDOWN IMMEDIATE;
+STARTUP;
+
+-- Step 5: Verify traditional auditing is off
+SELECT value FROM v$parameter WHERE name = 'audit_trail';
+-- Should return NONE
+</code></pre>
+<hr>
+<h2>Architecture: The Unified Audit Trail</h2>
+<p>All audit records flow into a single view regardless of their source — SQL statements, privileges, objects, fine-grained audit policies, Oracle Database Vault, Label Security, Data Pump, SQL*Loader, and RMAN.</p>
+<pre><code class="language-sql">-- The single entry point for all audit data
+SELECT * FROM UNIFIED_AUDIT_TRAIL;
+
+-- Key columns in UNIFIED_AUDIT_TRAIL
+SELECT
+  event_timestamp,        -- When the event occurred
+  dbusername,             -- Database user
+  os_username,            -- OS user
+  userhost,               -- Client host
+  client_program_name,    -- Application name
+  action_name,            -- What was done (SELECT, INSERT etc)
+  object_schema,          -- Schema of the object
+  object_name,            -- Object name
+  sql_text,               -- The actual SQL statement
+  unified_audit_policies, -- Which policy triggered this record
+  return_code,            -- 0 = success, ORA error = failure
+  authentication_type,    -- How the user authenticated
+  dbid                    -- Database identifier
+FROM UNIFIED_AUDIT_TRAIL
+ORDER BY event_timestamp DESC;
+</code></pre>
+<h3>Audit Trail Storage</h3>
+<p>The unified audit trail is stored in the AUDSYS schema, and no one is allowed to log in to that schema in the database. This tamper-resistant design ensures that even a compromised DBA account cannot alter or delete audit records.</p>
+<hr>
+<h2>Three Pillars of Effective Audit Policy Design</h2>
+<p>Create effective audit policies that are selective and targeted to your needs by focusing audit configuration on three factors: privileged user activity, security-relevant events, and sensitive data access.</p>
+<h3>Pillar 1 — Privileged User Activity</h3>
+<p>Top-level statements by administrative users, such as SYSDBA and SYSKM, are mandatorily audited when the database is in the closed or mount state. To audit the administrative user activity once the database is open, set up the following audits: Monitor all user-initiated activities of privileged administrators, including SYS. Monitor direct access to the database. Monitor all user-initiated activities of individual high-risk database accounts that have broad system access or access to sensitive data.</p>
+<pre><code class="language-sql">-- Audit all activity by privileged users
+CREATE AUDIT POLICY priv_user_activity
+  ACTIONS ALL
+  BY SYS, SYSTEM, PDBADMIN;
+
+AUDIT POLICY priv_user_activity;
+
+-- Audit specific high-risk accounts
+CREATE AUDIT POLICY high_risk_accounts
+  ACTIONS SELECT, INSERT, UPDATE, DELETE, EXECUTE
+  BY hr_admin, fin_admin, security_admin;
+
+AUDIT POLICY high_risk_accounts;
+</code></pre>
+<h3>Pillar 2 — Security-Relevant Events</h3>
+<p>Security-relevant events are actions within the database that warrant greater scrutiny and constant monitoring because they can potentially be abused. Monitoring such actions helps detect anomalous activities in the database. These actions include, but are not limited to, any changes in the database-wide security policies using ALTER DATABASE/ALTER SYSTEM.</p>
+<pre><code class="language-sql">-- Audit all security-management events
+CREATE AUDIT POLICY security_events
+  ACTIONS
+    ALTER SYSTEM,
+    ALTER DATABASE,
+    CREATE USER, ALTER USER, DROP USER,
+    GRANT, REVOKE,
+    CREATE ROLE, ALTER ROLE, DROP ROLE,
+    CREATE AUDIT POLICY,
+    ALTER AUDIT POLICY,
+    DROP AUDIT POLICY,
+    AUDIT, NOAUDIT;
+
+AUDIT POLICY security_events;
+</code></pre>
+<h3>Pillar 3 — Sensitive Data Access</h3>
+<pre><code class="language-sql">-- Audit access to tables containing sensitive data
+CREATE AUDIT POLICY sensitive_data_access
+  ACTIONS
+    SELECT ON hr.employees,
+    INSERT ON hr.employees,
+    UPDATE ON hr.employees,
+    DELETE ON hr.employees,
+    SELECT ON fin.salary_history,
+    SELECT ON fin.bank_accounts;
+
+AUDIT POLICY sensitive_data_access;
+</code></pre>
+<hr>
+<h2>Mandatory Auditing — Always On</h2>
+<p>Oracle Database has mandatory auditing enabled for certain security-sensitive operations. These always-on audits are built in and cannot be turned off. So you don't need to duplicate them in your own policies.</p>
+<pre><code class="language-sql">-- View all mandatory audit records
+SELECT event_timestamp, dbusername, action_name, object_name, return_code
+FROM UNIFIED_AUDIT_TRAIL
+WHERE UNIFIED_AUDIT_POLICIES LIKE '%ORA$MANDATORY%'
+ORDER BY event_timestamp DESC;
+</code></pre>
+<p>Mandatory audit events include SYSDBA and SYSOPER logins, database startup and shutdown, and connections using administrative privileges.</p>
+<hr>
+<h2>Predefined Oracle Audit Policies</h2>
+<p>Oracle provides several predesigned and ready-to-use best practice unified audit policies that cover common security-relevant audit settings. These include audits of failed logons and logoffs, changes to Oracle Database parameter settings, modifications to user accounts and privileges, and audit requirements for STIG compliance.</p>
+<pre><code class="language-sql">-- View all predefined Oracle policies
+SELECT policy_name, enabled_option, user_name
+FROM audit_unified_enabled_policies
+WHERE policy_name LIKE 'ORA$%'
+ORDER BY policy_name;
+
+-- Key predefined policies
+-- ORA$LOGON_FAILURES    -- Failed login attempts
+-- ORA$ALL_TOPLEVEL_ACTIONS -- All top-level SQL (use carefully)
+-- ORA$DATABASE_PARAMETER_CHANGES -- ALTER SYSTEM changes
+-- ORA$ACCOUNT_MGMT     -- User account changes
+-- ORA$STIG_RECOMMENDATIONS -- STIG compliance requirements
+
+-- Enable the logon failures policy
+AUDIT POLICY ORA$LOGON_FAILURES;
+
+-- Enable STIG recommendations
+AUDIT POLICY ORA$STIG_RECOMMENDATIONS;
+</code></pre>
+<hr>
+<h2>Creating Custom Audit Policies</h2>
+<h3>Basic Policy Syntax</h3>
+<pre><code class="language-sql">-- Syntax
+CREATE AUDIT POLICY policy_name
+  PRIVILEGES privilege1, privilege2, ...
+  ACTIONS action1 ON schema.object, action2, ...
+  ROLES role1, role2
+  WHEN 'condition'
+  EVALUATE PER SESSION | INSTANCE | STATEMENT;
+
+-- Enable the policy
+AUDIT POLICY policy_name;
+
+-- Enable for specific users only
+AUDIT POLICY policy_name BY user1, user2;
+
+-- Enable for all users EXCEPT specific ones
+AUDIT POLICY policy_name EXCEPT user1, user2;
+
+-- Disable a policy
+NOAUDIT POLICY policy_name;
+
+-- Drop a policy
+DROP AUDIT POLICY policy_name;
+</code></pre>
+<h3>Audit Failed Logins</h3>
+<pre><code class="language-sql">CREATE AUDIT POLICY failed_logins
+  ACTIONS LOGON
+  WHEN 'SYS_CONTEXT(''USERENV'', ''SESSION_USER'') IS NOT NULL'
+  EVALUATE PER SESSION;
+
+-- Or more simply using the predefined policy
+AUDIT POLICY ORA$LOGON_FAILURES;
+</code></pre>
+<h3>Audit DDL on Critical Objects</h3>
+<pre><code class="language-sql">CREATE AUDIT POLICY critical_ddl
+  ACTIONS
+    ALTER TABLE ON hr.employees,
+    DROP TABLE ON hr.employees,
+    TRUNCATE TABLE ON hr.employees,
+    ALTER TABLE ON fin.accounts,
+    DROP TABLE ON fin.accounts;
+
+AUDIT POLICY critical_ddl;
+</code></pre>
+<h3>Audit Privilege Use</h3>
+<pre><code class="language-sql">CREATE AUDIT POLICY privilege_use
+  PRIVILEGES
+    CREATE ANY TABLE,
+    DROP ANY TABLE,
+    SELECT ANY TABLE,
+    EXECUTE ANY PROCEDURE,
+    CREATE ANY PROCEDURE,
+    ALTER ANY TABLE;
+
+AUDIT POLICY privilege_use;
+</code></pre>
+<hr>
+<h2>Column-Level Auditing — New in 23ai</h2>
+<p>Oracle Database 23ai introduces a new ability to audit access to certain columns in tables and views. It enables you to create more narrowly targeted audit policies that reduce &quot;noise&quot; from unnecessary audit records.</p>
+<p>This is one of the most impactful new auditing features in 23ai. Instead of auditing every SELECT on a table, you can audit only when specific sensitive columns are accessed — dramatically reducing audit volume while increasing precision.</p>
+<pre><code class="language-sql">-- Audit access to specific PII columns only
+CREATE AUDIT POLICY pii_column_access
+  ACTIONS
+    SELECT (salary, ssn, bank_account) ON hr.employees,
+    UPDATE (salary, ssn, bank_account) ON hr.employees,
+    INSERT (salary, ssn, bank_account) ON hr.employees;
+
+AUDIT POLICY pii_column_access;
+</code></pre>
+<p>Before 23ai, a policy on <code>hr.employees</code> would fire on every single SELECT regardless of which columns were accessed. With column-level auditing, the policy only fires when someone actually touches <code>salary</code>, <code>ssn</code>, or <code>bank_account</code> — reducing audit noise by orders of magnitude on busy tables.</p>
+<hr>
+<h2>Conditional Auditing</h2>
+<p>With conditional auditing, you can create precise, highly selective and context-aware policies, which makes it easier to audit specific actions and reduce the amount of irrelevant audit records. Conditional audits lower your storage needs and provide high-value audit records that will be useful for auditors, forensic investigations, or regulatory compliance requirements.</p>
+<pre><code class="language-sql">-- Audit SELECT on salary only outside business hours
+CREATE AUDIT POLICY after_hours_salary_access
+  ACTIONS SELECT (salary) ON hr.employees
+  WHEN 'TO_NUMBER(TO_CHAR(SYSDATE, ''HH24'')) NOT BETWEEN 8 AND 18'
+  EVALUATE PER STATEMENT;
+
+AUDIT POLICY after_hours_salary_access;
+
+-- Audit only connections from outside the corporate network
+CREATE AUDIT POLICY external_access
+  ACTIONS ALL
+  WHEN 'SYS_CONTEXT(''USERENV'', ''IP_ADDRESS'')
+        NOT LIKE ''10.%'''
+  EVALUATE PER SESSION;
+
+AUDIT POLICY external_access;
+
+-- Audit only failed DML attempts
+CREATE AUDIT POLICY failed_dml
+  ACTIONS INSERT, UPDATE, DELETE ON hr.employees
+  WHEN 'SYS_CONTEXT(''USERENV'', ''CURRENT_USER'') != ''HR_APP'''
+  EVALUATE PER STATEMENT;
+
+AUDIT POLICY failed_dml WHENEVER NOT SUCCESSFUL;
+</code></pre>
+<hr>
+<h2>Capturing Application Context</h2>
+<p>The unified audit trail can be extended to include application attributes by configuring auditing for application context values. The application context namespace can be populated with the required attributes, and this is captured in the APPLICATION_CONTEXTS column of the unified audit trail.</p>
+<p>This is invaluable for applications that use connection pools — many users share the same database user, making it impossible to tell from <code>DBUSERNAME</code> alone who actually performed an action. Application context solves this.</p>
+<pre><code class="language-sql">-- In your application, set the context before each operation
+EXEC DBMS_SESSION.SET_CONTEXT(
+  namespace =&gt; 'APP_CTX',
+  attribute =&gt; 'APP_USER',
+  value     =&gt; 'john.smith@company.com'
+);
+
+EXEC DBMS_SESSION.SET_CONTEXT(
+  namespace =&gt; 'APP_CTX',
+  attribute =&gt; 'MODULE',
+  value     =&gt; 'PAYROLL_PROCESSING'
+);
+
+-- Create an audit policy that captures the context
+CREATE AUDIT POLICY app_user_activity
+  ACTIONS INSERT, UPDATE, DELETE ON hr.employees;
+
+AUDIT POLICY app_user_activity;
+
+-- The APPLICATION_CONTEXTS column in UNIFIED_AUDIT_TRAIL
+-- will now capture app_user and module for every audit record
+SELECT
+  event_timestamp,
+  dbusername,
+  application_contexts,
+  action_name,
+  object_name
+FROM UNIFIED_AUDIT_TRAIL
+WHERE object_name = 'EMPLOYEES'
+ORDER BY event_timestamp DESC;
+</code></pre>
+<hr>
+<h2>PDB-Level Auditing</h2>
+<p>Oracle 23ai provides PDB autonomy — fully independent audit policies at the PDB level. Each PDB can have its own audit policies, its own audit trail, and its own retention settings — independent of the CDB or other PDBs.</p>
+<pre><code class="language-sql">-- Connect to a specific PDB
+ALTER SESSION SET CONTAINER = FREEPDB1;
+
+-- All audit policy operations here affect only FREEPDB1
+CREATE AUDIT POLICY pdb_sensitive_access
+  ACTIONS SELECT ON app_schema.customers,
+           SELECT ON app_schema.orders;
+
+AUDIT POLICY pdb_sensitive_access;
+
+-- Query audit trail for this PDB only
+SELECT event_timestamp, dbusername, action_name, object_name
+FROM UNIFIED_AUDIT_TRAIL
+WHERE dbid = (SELECT dbid FROM v$database)
+ORDER BY event_timestamp DESC;
+</code></pre>
+<hr>
+<h2>Querying the Audit Trail</h2>
+<h3>Basic Queries</h3>
+<pre><code class="language-sql">-- All audit records in the last 24 hours
+SELECT event_timestamp, dbusername, action_name,
+       object_schema, object_name, return_code
+FROM UNIFIED_AUDIT_TRAIL
+WHERE event_timestamp &gt; SYSDATE - 1
+ORDER BY event_timestamp DESC;
+
+-- Failed login attempts
+SELECT event_timestamp, dbusername, userhost,
+       os_username, return_code
+FROM UNIFIED_AUDIT_TRAIL
+WHERE action_name = 'LOGON'
+  AND return_code != 0
+ORDER BY event_timestamp DESC;
+
+-- All activity by a specific user today
+SELECT event_timestamp, action_name, object_schema,
+       object_name, sql_text
+FROM UNIFIED_AUDIT_TRAIL
+WHERE dbusername = 'HR_ADMIN'
+  AND event_timestamp &gt; TRUNC(SYSDATE)
+ORDER BY event_timestamp;
+
+-- DDL changes in the last 7 days
+SELECT event_timestamp, dbusername, action_name,
+       object_schema, object_name
+FROM UNIFIED_AUDIT_TRAIL
+WHERE action_name IN ('CREATE TABLE','DROP TABLE','ALTER TABLE',
+                      'CREATE USER','DROP USER','GRANT','REVOKE')
+  AND event_timestamp &gt; SYSDATE - 7
+ORDER BY event_timestamp DESC;
+
+-- Which policies are generating the most records
+SELECT unified_audit_policies, COUNT(*) AS record_count
+FROM UNIFIED_AUDIT_TRAIL
+WHERE event_timestamp &gt; SYSDATE - 30
+GROUP BY unified_audit_policies
+ORDER BY record_count DESC;
+</code></pre>
+<h3>Managing Audit Policies</h3>
+<pre><code class="language-sql">-- View all audit policies
+SELECT policy_name, enabled_option, success, failure
+FROM audit_unified_policies
+ORDER BY policy_name;
+
+-- View currently enabled policies
+SELECT policy_name, enabled_option, user_name, success, failure
+FROM audit_unified_enabled_policies
+ORDER BY policy_name;
+
+-- View policy details
+SELECT policy_name, audit_option, audit_option_type,
+       object_schema, object_name, object_type
+FROM audit_unified_policies
+WHERE policy_name = 'PII_COLUMN_ACCESS'
+ORDER BY audit_option;
+</code></pre>
+<hr>
+<h2>Audit Trail Maintenance</h2>
+<h3>Archiving Audit Records</h3>
+<p>Oracle recommends archiving audit records regularly before purging to maintain a historical record for compliance purposes:</p>
+<pre><code class="language-sql">-- Create an archive table
+CREATE TABLE audit_archive AS
+SELECT * FROM UNIFIED_AUDIT_TRAIL WHERE 1=0;
+
+-- Archive records older than 90 days
+INSERT INTO audit_archive
+SELECT * FROM UNIFIED_AUDIT_TRAIL
+WHERE event_timestamp &lt; SYSDATE - 90;
+
+COMMIT;
+</code></pre>
+<h3>Purging the Audit Trail</h3>
+<pre><code class="language-sql">-- Initialize the audit trail cleanup
+BEGIN
+  DBMS_AUDIT_MGMT.INIT_CLEANUP(
+    audit_trail_type         =&gt; DBMS_AUDIT_MGMT.AUDIT_TRAIL_UNIFIED,
+    default_cleanup_interval =&gt; 24  -- hours
+  );
+END;
+/
+
+-- Set the last archive timestamp
+BEGIN
+  DBMS_AUDIT_MGMT.SET_LAST_ARCHIVE_TIMESTAMP(
+    audit_trail_type  =&gt; DBMS_AUDIT_MGMT.AUDIT_TRAIL_UNIFIED,
+    last_archive_time =&gt; SYSDATE - 90
+  );
+END;
+/
+
+-- Run the purge manually
+BEGIN
+  DBMS_AUDIT_MGMT.CLEAN_AUDIT_TRAIL(
+    audit_trail_type    =&gt; DBMS_AUDIT_MGMT.AUDIT_TRAIL_UNIFIED,
+    use_last_arch_timestamp =&gt; TRUE
+  );
+END;
+/
+
+-- Schedule automatic purge every 24 hours
+BEGIN
+  DBMS_AUDIT_MGMT.CREATE_PURGE_JOB(
+    audit_trail_type           =&gt; DBMS_AUDIT_MGMT.AUDIT_TRAIL_UNIFIED,
+    audit_trail_purge_interval =&gt; 24,
+    audit_trail_purge_name     =&gt; 'UNIFIED_AUDIT_PURGE_JOB',
+    use_last_arch_timestamp    =&gt; TRUE
+  );
+END;
+/
+</code></pre>
+<hr>
+<h2>Compliance Framework Mapping</h2>
+<h3>GDPR</h3>
+<pre><code class="language-sql">-- Audit access to personal data columns
+CREATE AUDIT POLICY gdpr_pii_access
+  ACTIONS
+    SELECT (first_name, last_name, email, phone,
+            address, date_of_birth, national_id) ON customers.profiles,
+    UPDATE (first_name, last_name, email, phone,
+            address, date_of_birth, national_id) ON customers.profiles,
+    DELETE ON customers.profiles;
+
+AUDIT POLICY gdpr_pii_access;
+</code></pre>
+<h3>SOX (Sarbanes-Oxley)</h3>
+<pre><code class="language-sql">-- Audit all financial data access and changes
+CREATE AUDIT POLICY sox_financial_audit
+  ACTIONS
+    SELECT ON fin.general_ledger,
+    INSERT ON fin.general_ledger,
+    UPDATE ON fin.general_ledger,
+    DELETE ON fin.general_ledger,
+    SELECT ON fin.journal_entries,
+    INSERT ON fin.journal_entries,
+    ALTER TABLE ON fin.general_ledger,
+    ALTER TABLE ON fin.journal_entries;
+
+AUDIT POLICY sox_financial_audit;
+
+-- Audit privilege changes (SOX requires tracking who can do what)
+CREATE AUDIT POLICY sox_privilege_changes
+  ACTIONS
+    GRANT, REVOKE,
+    CREATE USER, ALTER USER, DROP USER,
+    CREATE ROLE, DROP ROLE;
+
+AUDIT POLICY sox_privilege_changes;
+</code></pre>
+<h3>HIPAA</h3>
+<pre><code class="language-sql">-- Audit all access to protected health information (PHI)
+CREATE AUDIT POLICY hipaa_phi_access
+  ACTIONS
+    SELECT (patient_id, diagnosis, treatment,
+            medication, insurance_id) ON health.patient_records,
+    UPDATE (patient_id, diagnosis, treatment,
+            medication, insurance_id) ON health.patient_records,
+    INSERT ON health.patient_records,
+    DELETE ON health.patient_records;
+
+AUDIT POLICY hipaa_phi_access;
+</code></pre>
+<hr>
+<h2>Best Practices Summary</h2>
+<p>Based on Oracle's official best practice guidelines:</p>
+<p><strong>Focus on three areas:</strong>
+Start with privileged user activity, then security-relevant events, then sensitive data access. Auditing everything creates too much noise and degrades performance.</p>
+<p><strong>Use predefined policies first:</strong>
+Oracle's <code>ORA$</code> prefixed policies cover most common compliance requirements. Enable them before writing custom policies.</p>
+<p><strong>Leverage column-level auditing (23ai):</strong>
+Instead of auditing entire table accesses, audit specific sensitive columns. This dramatically reduces audit volume on busy tables while maintaining precision.</p>
+<p><strong>Use conditional auditing to reduce noise:</strong>
+Add <code>WHEN</code> conditions to policies so they only fire in relevant scenarios — after hours, from external IPs, on failed attempts.</p>
+<p><strong>Never audit SYS directly in your policies:</strong>
+SYS activity is covered by mandatory auditing. Duplicating it wastes storage.</p>
+<p><strong>Archive before purging:</strong>
+Always move audit records to an archive table before running <code>CLEAN_AUDIT_TRAIL</code>. Compliance frameworks typically require 1–7 years of audit history.</p>
+<p><strong>Test policy impact before enabling in production:</strong>
+Enable new policies on a test system first and measure the audit record volume generated before deploying to production.</p>
+<pre><code class="language-sql">-- Verify your audit setup is complete
+SELECT
+  (SELECT COUNT(*) FROM audit_unified_enabled_policies) AS enabled_policies,
+  (SELECT COUNT(*) FROM UNIFIED_AUDIT_TRAIL
+   WHERE event_timestamp &gt; SYSDATE - 1) AS records_last_24h,
+  (SELECT value FROM v$parameter
+   WHERE name = 'audit_trail') AS audit_trail_param;
+</code></pre>
+
+      </div>
+    </div>
+
+    <!-- Sidebar TOC -->
+    <aside class="article-sidebar">
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <nav class="toc-nav" id="toc"></nav>
+      </div>
+    </aside>
+
+  </div>
+</article>
+
+<script>
+  // Auto-generate table of contents from h2/h3 headings
+  const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+  const toc = document.getElementById('toc');
+  if (headings.length > 0 && toc) {
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+      toc.appendChild(a);
+    });
+
+    // Highlight active heading on scroll
+    const tocLinks = toc.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(l => l.classList.remove('active'));
+          const active = toc.querySelector(`a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(h => observer.observe(h));
+  } else if (toc) {
+    toc.closest('.toc-box').style.display = 'none';
+  }
+</script>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="text-decoration:none; display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="nav-logo-icon">O</div>
+        <div class="nav-logo-text">Oracle <span>23ai</span></div>
+      </div>
+      <p>An independent technical help center and blog for Oracle Database 23ai developers, DBAs, and architects. Not affiliated with Oracle Corporation.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">INSTALL</div>
+      <ul>
+        <li><a href="/oracle23ai/install/installing-oracle-23ai-free/">Installation Guides</a></li>
+        <li><a href="/oracle23ai/install/">Error Reference</a></li>
+        <li><a href="/oracle23ai/install/">AI Features</a></li>
+        <li><a href="/oracle23ai/install/">Performance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Blog</div>
+      <ul>
+        <li><a href="/oracle23ai/blog/">All Posts</a></li>
+        <li><a href="/oracle23ai/blog/">Deep Dives</a></li>
+        <li><a href="/oracle23ai/blog/">Tutorials</a></li>
+        <li><a href="/oracle23ai/blog/">Migration</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <ul>
+        <li><a href="https://docs.oracle.com" target="_blank">Oracle Docs ↗</a></li>
+        <li><a href="https://livesql.oracle.com" target="_blank">23ai Live SQL ↗</a></li>
+        <li><a href="https://oracle.com/cloud/free" target="_blank">OCI Free Tier ↗</a></li>
+        <li><a href="https://asktom.oracle.com" target="_blank">AskTOM ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Oracle 23ai Help Center — Independent resource. Oracle® is a registered trademark of <span>Oracle Corporation</span>.</p>
+  </div>
+</footer>
+
+<script src="/oracle23ai/pagefind/pagefind-ui.js" onerror="this.remove()"></script>
+<script>
+  // Pagefind search widget
+  if (window.PagefindUI) {
+    new PagefindUI({ element: "#search-widget", showSubResults: true });
+  }
+  document.getElementById('search-trigger')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.remove('hidden');
+    document.querySelector('.pagefind-ui__search-input')?.focus();
+  });
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.add('hidden');
+  }
+  document.getElementById('search-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'search-overlay') closeSearch();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('search-overlay').classList.remove('hidden');
+    }
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
